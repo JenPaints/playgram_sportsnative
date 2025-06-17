@@ -9,6 +9,7 @@ export default defineConfig({
   publicDir: "public",
   build: {
     outDir: "dist",
+    assetsDir: "assets",
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {

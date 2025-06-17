@@ -1,11 +1,5 @@
 {
-  "version": 2,
-  "buildCommand": "bash build.sh",
-  "outputDirectory": "dist",
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 } 
