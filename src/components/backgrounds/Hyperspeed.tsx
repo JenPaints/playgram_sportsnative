@@ -128,9 +128,7 @@ const Hyperspeed = ({ effectOptions = {
       const smaaPass = new EffectPass(
         camera,
         new SMAAEffect({
-          preset: SMAAPreset.MEDIUM,
-          searchImage: SMAAEffect.searchImageDataURL,
-          areaImage: SMAAEffect.areaImageDataURL
+          preset: SMAAPreset.MEDIUM
         })
       );
       renderPass.renderToScreen = false;
