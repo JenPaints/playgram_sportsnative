@@ -16,8 +16,8 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
 
     /* Path aliases */
@@ -26,5 +26,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "convex"]
 }
