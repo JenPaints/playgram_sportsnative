@@ -4,21 +4,15 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
+  plugins: [react()],
+  root: ".",
   base: "/",
-  root: path.resolve(__dirname),
-  publicDir: "public",
   build: {
     outDir: "dist",
     assetsDir: "assets",
     emptyOutDir: true,
-    sourcemap: true,
-    rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, "index.html")
-      }
-    }
+    sourcemap: true
   },
-  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
