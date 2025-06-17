@@ -1,0 +1,142 @@
+@import './styles/admin-theme.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #1a1a1a;
+    --card: #ffffff;
+    --card-foreground: #1a1a1a;
+    --popover: #ffffff;
+    --popover-foreground: #1a1a1a;
+    --primary: #1a1a1a;
+    --primary-dark: #000000;
+    --primary-foreground: #ffffff;
+    --secondary: #f5f5f5;
+    --secondary-dark: #e0e0e0;
+    --secondary-foreground: #1a1a1a;
+    --muted: #f5f5f5;
+    --muted-foreground: #666666;
+    --accent: #f5f5f5;
+    --accent-foreground: #1a1a1a;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #e0e0e0;
+    --input: #e0e0e0;
+    --ring: #1a1a1a;
+    --radius: 8px;
+  }
+
+  .dark {
+    --background: #1a1a1a;
+    --foreground: #ffffff;
+    --card: #1a1a1a;
+    --card-foreground: #ffffff;
+    --popover: #1a1a1a;
+    --popover-foreground: #ffffff;
+    --primary: #ffffff;
+    --primary-dark: #e0e0e0;
+    --primary-foreground: #1a1a1a;
+    --secondary: #404040;
+    --secondary-dark: #333333;
+    --secondary-foreground: #ffffff;
+    --muted: #404040;
+    --muted-foreground: #a0a0a0;
+    --accent: #404040;
+    --accent-foreground: #ffffff;
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+    --border: #404040;
+    --input: #404040;
+    --ring: #a0a0a0;
+  }
+}
+
+.accent-text {
+  @apply text-slate-600;
+}
+
+body {
+  font-family:
+    "Inter Variable",
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    "Noto Sans",
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    "Noto Color Emoji";
+  color: var(--color-dark);
+  background: var(--color-light);
+}
+
+/* only use this to update the style of the auth input fields. use a different class for all other input fields */
+.auth-input-field {
+  @apply w-full px-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-300 outline-none transition-shadow shadow-sm hover:shadow-md;
+  color: #18181b;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+/* only use this to update the style of the auth buttons. use the button class for all other buttons */
+.auth-button {
+  @apply w-full px-4 py-3 rounded-xl font-semibold transition-colors shadow-md hover:shadow-lg;
+  background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+  color: #fff;
+  letter-spacing: 0.02em;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.auth-button:disabled {
+  background: linear-gradient(90deg, #a5b4fc 0%, #c7d2fe 100%) !important;
+  color: #fff !important;
+  opacity: 1 !important;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Enhance the sign-in box UI */
+.auth-signin-box {
+  background: rgba(255,255,255,0.13);
+  box-shadow: 0 8px 40px 0 rgba(99,102,241,0.18), 0 1.5px 8px 0 rgba(99,102,241,0.10);
+  border-radius: 1.5rem;
+  border: 1.5px solid #818cf8;
+  padding: 2rem 1.5rem 2.5rem 1.5rem;
+  backdrop-filter: blur(16px);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0 1rem 0;
+}
+.auth-divider hr {
+  flex: 1;
+  border: none;
+  border-top: 1.5px solid #c7d2fe;
+  margin: 0 0.5rem;
+}
+.auth-divider span {
+  color: #a5b4fc;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.auth-google-btn {
+  @apply w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold border shadow-md transition hover:bg-indigo-50;
+  background: #fff;
+  color: #18181b;
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+}
