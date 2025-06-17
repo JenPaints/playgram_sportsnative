@@ -4,12 +4,18 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
+  base: "/",
   root: process.cwd(),
   publicDir: "public",
   build: {
     outDir: "dist",
     emptyOutDir: true,
-    sourcemap: true
+    sourcemap: true,
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "index.html")
+      }
+    }
   },
   plugins: [
     react(),
