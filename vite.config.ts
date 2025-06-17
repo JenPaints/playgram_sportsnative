@@ -13,7 +13,9 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
-      input: path.resolve(__dirname, "index.html")
+      input: {
+        main: path.resolve(__dirname, "index.html")
+      }
     }
   },
   plugins: [react()],
