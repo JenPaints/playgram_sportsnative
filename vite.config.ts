@@ -4,6 +4,15 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
+  root: ".",
+  build: {
+    outDir: "dist",
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "index.html"),
+      },
+    },
+  },
   plugins: [
     react(),
     // The code below enables dev tools like taking screenshots of your site
