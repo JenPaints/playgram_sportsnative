@@ -1,3 +1,3 @@
 [build]
-  command = "npm run build"
+  command = "ls -l && cat index.html && npm run build"
   publish = "dist" 
