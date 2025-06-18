@@ -18,6 +18,9 @@ export default function App() {
   return (
     <>
       <div className="bg-red-500 text-white p-8 text-2xl font-bold text-center">TEST TAILWIND</div>
+      <button className="bg-blue-500 text-white rounded-lg px-6 py-3 m-8 text-xl font-bold shadow-lg hover:bg-blue-600">
+        Literal Tailwind Button
+      </button>
       <div className="admin-dashboard min-h-screen">
         <Toaster 
           theme="dark" 
