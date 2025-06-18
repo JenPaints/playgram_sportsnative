@@ -5,7 +5,18 @@ module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx,css}",
-    "./src/**/**/*.{js,ts,jsx,tsx,css}"
+    "./src/components/**/*.{js,ts,jsx,tsx,css}",
+    "./src/components/admin/**/*.{js,ts,jsx,tsx,css}",
+    "./src/components/coach/**/*.{js,ts,jsx,tsx,css}",
+    "./src/components/student/**/*.{js,ts,jsx,tsx,css}",
+    "./src/components/ui/**/*.{js,ts,jsx,tsx,css}",
+    "./src/components/backgrounds/**/*.{js,ts,jsx,tsx,css}",
+    "./src/contexts/**/*.{js,ts,jsx,tsx,css}",
+    "./src/hooks/**/*.{js,ts,jsx,tsx,css}",
+    "./src/lib/**/*.{js,ts,jsx,tsx,css}",
+    "./src/utils/**/*.{js,ts,jsx,tsx,css}",
+    "./src/styles/**/*.{js,ts,jsx,tsx,css}",
+    "./src/assets/**/*.{js,ts,jsx,tsx,css,json}"
   ],
   safelist: [
     // Buttons
