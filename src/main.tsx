@@ -10,6 +10,9 @@ if (typeof document !== 'undefined') {
   document.documentElement.classList.add('dark');
 }
 
+console.log("VITE_CONVEX_URL:", import.meta.env.VITE_CONVEX_URL);
+console.log("VITE_RAZORPAY_KEY_ID:", import.meta.env.VITE_RAZORPAY_KEY_ID);
+
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
 const darkTheme = createTheme({
