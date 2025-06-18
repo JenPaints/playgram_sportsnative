@@ -3,6 +3,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* DEBUG: Add a visible background and text color to confirm CSS is loading */
+body {
+  background: #ffff00 !important;
+  color: #ff0000 !important;
+}
+
 @layer base {
   :root {
     --background: #ffffff;
