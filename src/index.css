@@ -75,8 +75,8 @@ body {
     "Segoe UI Emoji",
     "Segoe UI Symbol",
     "Noto Color Emoji";
-  color: #ff0000 !important;
-  background: #ffff00 !important;
+  color: var(--foreground);
+  background: var(--background);
 }
 
 /* only use this to update the style of the auth input fields. use a different class for all other input fields */
