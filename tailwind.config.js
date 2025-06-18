@@ -7,6 +7,25 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx,css}",
     "./src/**/**/*.{js,ts,jsx,tsx,css}"
   ],
+  safelist: [
+    // Buttons
+    "bg-primary", "text-primary-foreground", "hover:bg-primary/90",
+    "bg-destructive", "text-destructive-foreground", "hover:bg-destructive/90",
+    "border", "border-input", "bg-background", "shadow", "hover:bg-accent",
+    "hover:text-accent-foreground", "bg-secondary", "text-secondary-foreground",
+    "hover:bg-secondary/80", "hover:bg-accent", "hover:text-accent-foreground",
+    "rounded-md", "rounded-xl", "rounded-full",
+    // Badges
+    "bg-green-500", "bg-yellow-500", "bg-red-500", "text-white",
+    // Inputs
+    "border", "border-gray-200", "focus:border-indigo-500", "focus:ring-2", "focus:ring-indigo-300",
+    // Card, Tabs, Toast, etc.
+    "bg-card", "text-card-foreground", "bg-muted", "text-muted-foreground",
+    "bg-popover", "text-popover-foreground", "bg-accent-foreground",
+    "focus-visible:outline-none", "focus-visible:ring-2", "focus-visible:ring-ring", "focus-visible:ring-offset-2",
+    "disabled:pointer-events-none", "disabled:opacity-50",
+    // Add more as needed based on your UI usage
+  ],
   darkMode: ["class"],
   theme: {
     container: {
