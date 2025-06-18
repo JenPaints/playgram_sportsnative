@@ -1,12 +1,12 @@
 import React from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { SystemHealthCard } from "./SystemHealthCard";
 import { Doc } from "../../convex/_generated/dataModel";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, Legend } from "recharts";
 import { Skeleton } from "./ui/skeleton";
-import { Progress } from "@/components/ui/progress";
+import { Progress } from "../components/ui/progress";
 import { useMemo } from "react";
 
 const COLORS = ["#6366f1", "#f59e42", "#10b981", "#f43f5e", "#fbbf24", "#3b82f6"];

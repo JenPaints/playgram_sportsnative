@@ -54,7 +54,7 @@ export default function MerchandiseTab() {
       if (!window.Razorpay) throw new Error("Razorpay SDK not loaded");
       // 3. Open Razorpay checkout
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || '',
         amount: Number(order.amount),
         currency: order.currency,
         name: "PlayGram Sports",

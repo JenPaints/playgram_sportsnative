@@ -93,7 +93,7 @@ export default function GenerateInvoice({ onSuccess, onCancel, onClose }: Genera
         return;
       }
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || '',
         amount: Number(selectedEnrollment?.amount) * 100,
         currency: "INR",
         name: "PlayGram Sports",
