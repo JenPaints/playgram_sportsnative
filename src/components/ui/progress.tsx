@@ -1,17 +1,12 @@
 import * as React from "react"
 
-import { cn } from "@/lib/utils"
-
 const Progress = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & { value?: number; max?: number }
->(({ className, value, max = 100, ...props }, ref) => (
+>(({ className = "", value, max = 100, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn(
-      "relative h-2 w-full overflow-hidden rounded-full bg-muted",
-      className
-    )}
+    className={["relative h-2 w-full overflow-hidden rounded-full bg-muted", className].join(" ")}
     {...props}
   >
     <div
