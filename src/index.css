@@ -79,8 +79,6 @@ body {
   background: var(--background);
 }
 
-body { background: lime !important; }
-
 /* only use this to update the style of the auth input fields. use a different class for all other input fields */
 .auth-input-field {
   @apply w-full px-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-300 outline-none transition-shadow shadow-sm hover:shadow-md;
