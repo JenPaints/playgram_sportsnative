@@ -14,21 +14,25 @@ import { Capacitor } from '@capacitor/core';
 export default function App() {
   const isNativeApp = Capacitor.isNativePlatform();
 
+  // TEST: Literal Tailwind class
   return (
-    <div className="admin-dashboard min-h-screen">
-      <Toaster 
-        theme="dark" 
-        position="top-right"
-        toastOptions={{
-          style: {
-            background: '#1f2937',
-            color: '#f9fafb',
-            border: '1px solid #374151',
-          },
-        }}
-      />
-      <Content />
-    </div>
+    <>
+      <div className="bg-red-500 text-white p-8 text-2xl font-bold text-center">TEST TAILWIND</div>
+      <div className="admin-dashboard min-h-screen">
+        <Toaster 
+          theme="dark" 
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#1f2937',
+              color: '#f9fafb',
+              border: '1px solid #374151',
+            },
+          }}
+        />
+        <Content />
+      </div>
+    </>
   );
 }
 
