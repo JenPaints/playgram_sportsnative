@@ -3,7 +3,7 @@ import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
 import "./index.css";
 import App from "./App";
-import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material";
 
 // Force dark mode globally
 if (typeof document !== 'undefined') {
@@ -28,7 +28,6 @@ const darkTheme = createTheme({
 
 createRoot(document.getElementById("root")!).render(
   <ThemeProvider theme={darkTheme}>
-    <CssBaseline />
     <ConvexAuthProvider client={convex}>
       <App />
     </ConvexAuthProvider>
