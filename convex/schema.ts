@@ -238,6 +238,13 @@ const applicationTables = {
   settings: defineTable({
     maintenanceMode: v.optional(v.boolean()),
     announcement: v.optional(v.string()),
+    theme: v.optional(v.object({
+      mode: v.union(v.literal("light"), v.literal("dark"), v.literal("system")),
+      primaryColor: v.string(),
+      secondaryColor: v.string(),
+      fontSize: v.union(v.literal("small"), v.literal("medium"), v.literal("large")),
+      borderRadius: v.string(),
+    })),
   }),
 
   sessions: defineTable({
@@ -272,6 +279,20 @@ const applicationTables = {
     .index("by_user", ["userId"])
     .index("by_batch", ["batchId"])
     .index("by_sport", ["sportId"]),
+
+  system_metrics: defineTable({
+    uptime: v.number(),
+    responseTime: v.number(),
+    errorRate: v.number(),
+    activeUsers: v.number(),
+    totalRequests: v.number(),
+    failedRequests: v.number(),
+    lastTestTime: v.number(),
+    testStatus: v.union(v.literal("pass"), v.literal("fail"), v.literal("pending")),
+    cpuUsage: v.number(),
+    memoryUsage: v.number(),
+    timestamp: v.number(),
+  }).index("by_timestamp", ["timestamp"]),
 };
 
 export default defineSchema({

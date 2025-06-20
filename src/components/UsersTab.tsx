@@ -1,34 +1,11 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import React from "react";
 import { Id } from "../../convex/_generated/dataModel";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import TextField from '@mui/material/TextField';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import { Capacitor } from '@capacitor/core';
-import CircularProgress from '@mui/material/CircularProgress';
-import Snackbar from '@mui/material/Snackbar';
-import Tooltip from '@mui/material/Tooltip';
 import { toast } from 'react-hot-toast';
+import { UserPlus, Edit2, Trash2, UserCog } from 'lucide-react';
 
 interface UserProfile {
   _id: Id<"profiles">;
@@ -57,7 +34,6 @@ const UsersTab: React.FC = () => {
   const updateUserRole = useMutation(api.users.updateUserRole);
   const updateSubscriptionStatus = useMutation(api.users.updateSubscriptionStatus);
   const restoreUser = useMutation(api.users.restoreUser);
-  const impersonate = useMutation(api.users.impersonate);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editUser, setEditUser] = useState<UserProfile | null>(null);
@@ -99,6 +75,7 @@ const UsersTab: React.FC = () => {
     });
     setModalOpen(true);
   };
+
   const openEditModal = (user: UserProfile) => {
     setEditUser(user);
     setForm({
@@ -116,18 +93,20 @@ const UsersTab: React.FC = () => {
     });
     setModalOpen(true);
   };
+
   const closeModal = () => {
     setModalOpen(false);
     setError("");
   };
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    if (type === "checkbox") {
-      setForm((f) => ({ ...f, [name]: (e.target as HTMLInputElement).checked }));
-    } else {
-      setForm((f) => ({ ...f, [name]: value }));
-    }
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | { name?: string; value: unknown }>) => {
+    const { name, value, type, checked } = e.target as HTMLInputElement;
+    setForm(prev => ({
+      ...prev,
+      [name as string]: type === 'checkbox' ? checked : value
+    }));
   };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -148,196 +127,240 @@ const UsersTab: React.FC = () => {
       setLoading(false);
     }
   };
-  const handleDelete = async (profileId: Id<"profiles">) => {
-    if (!window.confirm("Delete this user?")) return;
-    setLoading(true);
-    try {
-      await deleteUser({ profileId });
-    } catch (err) {
-      setError("Failed to delete user");
-    } finally {
-      setLoading(false);
-    }
+
+  const handleRoleUpdate = (profileId: Id<"profiles">, role: "student" | "coach" | "admin") => {
+    updateUserRole({ profileId, role });
   };
-  const handleRoleUpdate = async (profileId: Id<"profiles">, role: "student" | "coach" | "admin") => {
-    setLoading(true);
-    try {
-      await updateUserRole({ profileId, role });
-    } catch (err) {
-      setError("Failed to update role");
-    } finally {
-      setLoading(false);
-    }
+
+  const handleSubscriptionUpdate = (profileId: Id<"profiles">, status: "active" | "pending" | "expired") => {
+    updateSubscriptionStatus({ profileId, status });
   };
-  const handleSubscriptionUpdate = async (profileId: Id<"profiles">, status: "active" | "pending" | "expired") => {
-    setLoading(true);
-    try {
-      await updateSubscriptionStatus({ profileId, status });
-    } catch (err) {
-      setError("Failed to update subscription");
-    } finally {
-      setLoading(false);
-    }
-  };
-  const handleDeleteUser = (userId: Id<"users">) => {
+
+  const handleDeleteUser = (profileId: Id<"profiles">) => {
     setConfirmDialog({
       open: true,
-      message: 'Are you sure you want to delete this user? This action cannot be undone.',
-      action: async () => {
-        await deleteUser({ userId });
-        setUndoAction(() => async () => {
-          await restoreUser({ userId });
-          toast.success('User restored!');
-        });
+      message: "Are you sure you want to delete this user?",
+      action: () => {
+        deleteUser({ profileId });
         setUndoOpen(true);
-        toast.success('User deleted.');
-      },
+      }
     });
-  };
-  const handleImpersonate = async (userId: Id<"users">) => {
-    setLoading(true);
-    try {
-      await impersonate({ userId });
-      toast.success('Now viewing as user.');
-    } catch (err) {
-      toast.error('Failed to impersonate user.');
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
-    <Box sx={{ py: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h5" fontWeight={700} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>👥 Users</Typography>
-        <Button variant="contained" color="primary" onClick={openAddModal}>+ Add User</Button>
-      </Box>
-      <TableContainer component={Paper} sx={{ background: '#18181b', borderRadius: 3 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Subscription</TableCell>
-              <TableCell>Active</TableCell>
-              <TableCell>Level</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user._id} hover>
-                <TableCell sx={{ color: '#fff', fontWeight: 600 }}>{user.firstName} {user.lastName}</TableCell>
-                <TableCell>
-                  <FormControl fullWidth size="small">
-                    <Tooltip title="Change the user's role. Only admins can assign admin role.">
-                      <Select
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div className="text-foreground font-semibold flex items-center gap-2 text-xl">
+          <UserCog className="w-6 h-6" />
+          Users Management
+        </div>
+        <button
+          className="admin-button-primary flex items-center gap-2"
+          onClick={openAddModal}
+        >
+          <UserPlus className="w-5 h-5" /> Add User
+        </button>
+      </div>
+
+      <div className="overflow-x-auto rounded-xl shadow bg-card">
+        <table className="min-w-full admin-table">
+          <thead>
+            <tr className="bg-muted">
+              <th className="p-3 text-left">Name</th>
+              <th className="p-3 text-left">Role</th>
+              <th className="p-3 text-left">Phone</th>
+              <th className="p-3 text-left">Subscription</th>
+              <th className="p-3 text-left">Active</th>
+              <th className="p-3 text-left">Level</th>
+              <th className="p-3 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user, idx) => (
+              <tr
+                key={user._id}
+                className={`border-b border-border transition ${idx % 2 === 0 ? 'bg-card' : 'bg-[#23232a]'} hover:bg-muted`}
+              >
+                <td className="p-3 font-medium">{user.firstName} {user.lastName}</td>
+                <td className="p-3">
+                  <select
                         value={user.role}
-                        onChange={e => handleRoleUpdate(user._id, e.target.value as "student" | "coach" | "admin")}
-                        sx={{ color: '#fff', background: '#23232a', borderRadius: 1 }}
-                      >
-                        <MenuItem value="student">Student</MenuItem>
-                        <MenuItem value="coach">Coach</MenuItem>
-                        {!isNativeApp && <MenuItem value="admin">Admin</MenuItem>}
-                      </Select>
-                    </Tooltip>
-                  </FormControl>
-                </TableCell>
-                <TableCell sx={{ color: '#bbb' }}>{user.phone}</TableCell>
-                <TableCell>
-                  <FormControl fullWidth size="small">
-                    <Select
+                    onChange={(e) => handleRoleUpdate(user._id, e.target.value as "student" | "coach" | "admin")}
+                    className="admin-input"
+                  >
+                    <option value="student">Student</option>
+                    <option value="coach">Coach</option>
+                    {!isNativeApp && <option value="admin">Admin</option>}
+                  </select>
+                </td>
+                <td className="p-3 text-muted-foreground">{user.phone}</td>
+                <td className="p-3">
+                  <select
                       value={user.subscriptionStatus}
-                      onChange={e => handleSubscriptionUpdate(user._id, e.target.value as "active" | "pending" | "expired")}
-                      sx={{ color: '#fff', background: '#23232a', borderRadius: 1 }}
+                    onChange={(e) => handleSubscriptionUpdate(user._id, e.target.value as "active" | "pending" | "expired")}
+                    className="admin-input"
+                  >
+                    <option value="active">Active</option>
+                    <option value="pending">Pending</option>
+                    <option value="expired">Expired</option>
+                  </select>
+                </td>
+                <td className="p-3">
+                  <input
+                    type="checkbox"
+                    checked={user.isActive}
+                    onChange={(e) => handleChange({ target: { name: 'isActive', type: 'checkbox', checked: e.target.checked } } as any)}
+                    className="text-primary"
+                  />
+                </td>
+                <td className="p-3">{user.level}</td>
+                <td className="p-3">
+                  <div className="flex gap-2">
+                    <button
+                      className="admin-button-secondary text-primary hover:text-white"
+                      onClick={() => openEditModal(user)}
+                      title="Edit User"
                     >
-                      <MenuItem value="active">Active</MenuItem>
-                      <MenuItem value="pending">Pending</MenuItem>
-                      <MenuItem value="expired">Expired</MenuItem>
-                    </Select>
-                  </FormControl>
-                </TableCell>
-                <TableCell>
-                  <Box sx={{ px: 1, py: 0.5, borderRadius: 1, fontWeight: 700, fontSize: 12, background: user.isActive ? '#166534' : '#374151', color: user.isActive ? '#bbf7d0' : '#d1d5db', display: 'inline-block' }}>
-                    {user.isActive ? 'Active' : 'Inactive'}
-                  </Box>
-                </TableCell>
-                <TableCell sx={{ color: '#fff' }}>{user.level}</TableCell>
-                <TableCell>
-                  <Button size="small" variant="contained" color="info" sx={{ mr: 1 }} onClick={() => openEditModal(user)}>Edit</Button>
-                  <Button size="small" variant="contained" color="error" onClick={() => handleDeleteUser(user.userId)}>Delete</Button>
-                </TableCell>
-              </TableRow>
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      className="admin-button-secondary text-primary hover:text-white"
+                      onClick={() => handleDeleteUser(user._id)}
+                      title="Delete User"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
             ))}
-            {users.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ color: '#888', py: 4 }}>No users found.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      {/* Modal for Add/Edit */}
-      <Dialog open={modalOpen} onClose={closeModal} maxWidth="sm" fullWidth>
-        <DialogTitle>{editUser ? 'Edit User' : 'Add User'}</DialogTitle>
-        <DialogContent>
-          {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
-          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <TextField label="First Name" name="firstName" value={form.firstName} onChange={handleChange} required fullWidth size="small" />
-              <TextField label="Last Name" name="lastName" value={form.lastName} onChange={handleChange} required fullWidth size="small" />
-            </Box>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <TextField label="Phone" name="phone" value={form.phone} onChange={handleChange} fullWidth size="small" />
-              <TextField label="Date of Birth" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} fullWidth size="small" />
-            </Box>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <TextField label="Gender" name="gender" value={form.gender} onChange={handleChange} fullWidth size="small" />
-              <TextField label="Address" name="address" value={form.address} onChange={handleChange} fullWidth size="small" />
-            </Box>
-            <TextField label="Emergency Contact" name="emergencyContact" value={form.emergencyContact} onChange={handleChange} fullWidth size="small" />
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Role</InputLabel>
-                <Select name="role" value={form.role} onChange={handleChange} label="Role">
-                  <MenuItem value="student">Student</MenuItem>
-                  <MenuItem value="coach">Coach</MenuItem>
-                  {!isNativeApp && <MenuItem value="admin">Admin</MenuItem>}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth size="small">
-                <InputLabel>Subscription</InputLabel>
-                <Select name="subscriptionStatus" value={form.subscriptionStatus} onChange={handleChange} label="Subscription">
-                  <MenuItem value="active">Active</MenuItem>
-                  <MenuItem value="pending">Pending</MenuItem>
-                  <MenuItem value="expired">Expired</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-            <FormControlLabel control={<Checkbox name="isActive" checked={form.isActive} onChange={handleChange} />} label="Active" />
-            <TextField label="Level" name="level" type="number" value={form.level} onChange={handleChange} fullWidth size="small" />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeModal} color="inherit">Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" color="primary" disabled={loading}>{loading ? 'Saving...' : 'Save'}</Button>
-        </DialogActions>
-      </Dialog>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Add/Edit User Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-card rounded-xl shadow-lg p-6 w-full max-w-md">
+            <div className="text-lg font-semibold mb-4">{editUser ? 'Edit User' : 'Add New User'}</div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  className="admin-input"
+                  placeholder="First Name"
+                  name="firstName"
+                  value={form.firstName}
+                  onChange={handleChange}
+                  required
+                />
+                <input
+                  className="admin-input"
+                  placeholder="Last Name"
+                  name="lastName"
+                  value={form.lastName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <input
+                className="admin-input"
+                placeholder="Phone"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+              />
+              <input
+                className="admin-input"
+                placeholder="Date of Birth"
+                name="dateOfBirth"
+                type="date"
+                value={form.dateOfBirth}
+                onChange={handleChange}
+              />
+              <select
+                className="admin-input"
+                name="gender"
+                value={form.gender}
+                onChange={handleChange}
+              >
+                <option value="">Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+              <input
+                className="admin-input"
+                placeholder="Address"
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+              />
+              <input
+                className="admin-input"
+                placeholder="Emergency Contact"
+                name="emergencyContact"
+                value={form.emergencyContact}
+                onChange={handleChange}
+              />
+              <select
+                className="admin-input"
+                name="role"
+                value={form.role}
+                onChange={handleChange}
+              >
+                <option value="student">Student</option>
+                <option value="coach">Coach</option>
+                {!isNativeApp && <option value="admin">Admin</option>}
+              </select>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="isActive"
+                  checked={form.isActive}
+                  onChange={handleChange}
+                  className="text-primary"
+                />
+                Active
+              </label>
+              <div className="flex justify-end gap-2 pt-4 border-t border-border">
+                <button type="button" className="admin-button-secondary" onClick={closeModal}>Cancel</button>
+                <button type="submit" className="admin-button-primary" disabled={loading}>
+                  {loading ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+              {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Confirmation Dialog */}
-      <Dialog open={confirmDialog?.open} onClose={() => setConfirmDialog(null)} maxWidth="sm" fullWidth>
-        <DialogTitle>Confirm Action</DialogTitle>
-        <DialogContent>
-          <Typography>{confirmDialog?.message}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => confirmDialog?.action()} color="inherit">Confirm</Button>
-          <Button onClick={() => setConfirmDialog(null)} color="inherit">Cancel</Button>
-        </DialogActions>
-      </Dialog>
-      {/* Snackbar for undo */}
-      <Snackbar open={undoOpen} autoHideDuration={6000} onClose={() => setUndoOpen(false)} message="Action undone" />
-    </Box>
+      {confirmDialog && confirmDialog.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-card rounded-xl shadow-lg p-6 w-full max-w-sm">
+            <div className="text-lg font-semibold mb-4">Confirm Action</div>
+            <div className="mb-4">{confirmDialog.message}</div>
+            <div className="flex justify-end gap-2">
+              <button className="admin-button-secondary" onClick={() => setConfirmDialog(null)}>Cancel</button>
+              <button className="admin-button-primary" onClick={() => { confirmDialog.action(); setConfirmDialog(null); }}>Confirm</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Undo Snackbar */}
+      {undoOpen && (
+        <div className="fixed bottom-4 right-4 z-50 bg-card border border-border rounded-lg shadow p-4 flex items-center gap-4">
+          <span>User deleted</span>
+          <button
+            className="admin-button-primary"
+            onClick={() => { undoAction?.(); setUndoOpen(false); }}
+          >
+            UNDO
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
 

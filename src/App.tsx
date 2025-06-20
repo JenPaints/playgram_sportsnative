@@ -5,7 +5,7 @@ import { SignOutButton } from "./SignOutButton";
 import { Toaster } from "sonner";
 import { StudentDashboard } from "./components/StudentDashboard";
 import { CoachDashboard } from "./components/CoachDashboard";
-import { AdminDashboard } from "./components/AdminDashboard";
+import AdminDashboard from "./components/AdminDashboard";
 import { ProfileSetup } from "./components/ProfileSetup";
 import { LoadingSpinner } from "./components/ui/LoadingSpinner";
 import { motion } from "framer-motion";
@@ -15,7 +15,7 @@ export default function App() {
   const isNativeApp = Capacitor.isNativePlatform();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
+    <div className="admin-dashboard min-h-screen">
       <Toaster 
         theme="dark" 
         position="top-right"
@@ -92,7 +92,7 @@ function AuthenticatedApp({ user, needsProfileSetup, isNativeApp }: { user: any;
     case "coach":
       return <CoachDashboard user={user} />;
     case "admin":
-      return <AdminDashboard user={user} />;
+      return <AdminDashboard />;
     default:
       return <StudentDashboard user={user} />;
   }

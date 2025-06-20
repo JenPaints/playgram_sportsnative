@@ -1,0 +1,139 @@
+@layer base {
+  :root {
+    --radius: 1rem;
+    --background: #18181b;
+    --foreground: #fff;
+    --card: #23232a;
+    --card-foreground: #fff;
+    --popover: #23232a;
+    --popover-foreground: #fff;
+    --primary: #ff3366;
+    --primary-foreground: #fff;
+    --secondary: #23232a;
+    --secondary-foreground: #fff;
+    --muted: #23232a;
+    --muted-foreground: #b0b0b0;
+    --accent: #ff3366;
+    --accent-foreground: #fff;
+    --destructive: #ff3366;
+    --border: #23232a;
+    --input: #23232a;
+    --ring: #ff3366;
+    --chart-1: oklch(0.646 0.222 41.116);
+    --chart-2: oklch(0.6 0.118 184.704);
+    --chart-3: oklch(0.398 0.07 227.392);
+    --chart-4: oklch(0.828 0.189 84.429);
+    --chart-5: oklch(0.769 0.188 70.08);
+    --sidebar: #23232a;
+    --sidebar-foreground: #fff;
+    --sidebar-primary: #ff3366;
+    --sidebar-primary-foreground: #fff;
+    --sidebar-accent: #23232a;
+    --sidebar-accent-foreground: #fff;
+    --sidebar-border: #23232a;
+    --sidebar-ring: #ff3366;
+  }
+
+  .dark {
+    --background: #18181b;
+    --foreground: #fff;
+    --card: #23232a;
+    --card-foreground: #fff;
+    --popover: #23232a;
+    --popover-foreground: #fff;
+    --primary: #ff3366;
+    --primary-foreground: #fff;
+    --secondary: #23232a;
+    --secondary-foreground: #fff;
+    --muted: #23232a;
+    --muted-foreground: #b0b0b0;
+    --accent: #ff3366;
+    --accent-foreground: #fff;
+    --destructive: #ff3366;
+    --border: #23232a;
+    --input: #23232a;
+    --ring: #ff3366;
+    --chart-1: oklch(0.488 0.243 264.376);
+    --chart-2: oklch(0.696 0.17 162.48);
+    --chart-3: oklch(0.769 0.188 70.08);
+    --chart-4: oklch(0.627 0.265 303.9);
+    --chart-5: oklch(0.645 0.246 16.439);
+    --sidebar: #23232a;
+    --sidebar-foreground: #fff;
+    --sidebar-primary: #ff3366;
+    --sidebar-primary-foreground: #fff;
+    --sidebar-accent: #23232a;
+    --sidebar-accent-foreground: #fff;
+    --sidebar-border: #23232a;
+    --sidebar-ring: #ff3366;
+  }
+}
+
+/* Admin Dashboard specific styles */
+.admin-dashboard {
+  @apply bg-background text-foreground;
+}
+
+.admin-card {
+  @apply bg-card text-card-foreground rounded-2xl border border-border shadow-lg;
+}
+
+.admin-sidebar {
+  @apply bg-sidebar text-sidebar-foreground border-r border-sidebar-border;
+}
+
+.admin-button-primary {
+  @apply bg-primary text-primary-foreground hover:opacity-90 transition-opacity rounded-lg font-semibold shadow-none;
+}
+
+.admin-button-secondary {
+  @apply bg-secondary text-secondary-foreground hover:opacity-90 transition-opacity rounded-lg font-semibold shadow-none;
+}
+
+.admin-input {
+  background-color: #23232a;
+  color: #fff;
+  border: 1.5px solid #333;
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  outline: none;
+  box-shadow: none;
+}
+.admin-input:focus, .admin-input:focus-visible {
+  border-color: #ff3366;
+  box-shadow: 0 0 0 2px #ff3366;
+}
+.admin-input::placeholder {
+  color: #b0b0b0;
+  opacity: 1;
+}
+
+.admin-table {
+  @apply w-full border-collapse;
+}
+
+.admin-table th {
+  @apply bg-muted text-muted-foreground font-medium px-4 py-3 text-left border-b border-[#333];
+}
+
+.admin-table td {
+  @apply border-b border-border px-4 py-3;
+}
+
+.admin-badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+}
+
+.admin-badge-success {
+  @apply bg-green-500 text-white;
+}
+
+.admin-badge-warning {
+  @apply bg-yellow-500 text-white;
+}
+
+.admin-badge-error {
+  @apply bg-red-500 text-white;
+} 

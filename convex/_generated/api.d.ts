@@ -40,6 +40,8 @@ import type * as sampleData from "../sampleData.js";
 import type * as settings from "../settings.js";
 import type * as sports from "../sports.js";
 import type * as storage from "../storage.js";
+import type * as systemHealth from "../systemHealth.js";
+import type * as systemHealth_actions from "../systemHealth_actions.js";
 import type * as users from "../users.js";
 
 /**
@@ -78,6 +80,8 @@ declare const fullApi: ApiFromModules<{
   settings: typeof settings;
   sports: typeof sports;
   storage: typeof storage;
+  systemHealth: typeof systemHealth;
+  systemHealth_actions: typeof systemHealth_actions;
   users: typeof users;
 }>;
 export declare const api: FilterApi<

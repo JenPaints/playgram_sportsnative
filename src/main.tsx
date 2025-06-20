@@ -5,6 +5,11 @@ import "./index.css";
 import App from "./App";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 
+// Force dark mode globally
+if (typeof document !== 'undefined') {
+  document.documentElement.classList.add('dark');
+}
+
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
 const darkTheme = createTheme({

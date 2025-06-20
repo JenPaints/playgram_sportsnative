@@ -3,25 +3,6 @@ import { api } from "../../convex/_generated/api";
 import { useState } from "react";
 import React from "react";
 import { Id } from "../../convex/_generated/dataModel";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import TextField from '@mui/material/TextField';
-import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 
 interface Batch {
   _id: Id<"batches">;
@@ -107,13 +88,13 @@ export default function BatchesTab() {
     setModalOpen(false);
     setError("");
   };
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    if (type === "checkbox") {
-      setForm((f) => ({ ...f, [name]: (e.target as HTMLInputElement).checked }));
-    } else {
-      setForm((f) => ({ ...f, [name]: value }));
-    }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+  };
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setForm((f) => ({ ...f, [name]: checked }));
   };
   const handleDayToggle = (day: string) => {
     setForm((f) =>
@@ -177,7 +158,7 @@ export default function BatchesTab() {
   const handleAssignCoach = async (batchId: Id<"batches">, coachId: string) => {
     setLoading(true);
     try {
-      await assignCoach({ batchId, coachId: coachId as Id<"users"> });
+      await assignCoach({ batchId, coachId: coachId ? (coachId as Id<"users">) : undefined });
     } catch (err) {
       setError("Failed to assign coach");
     } finally {
@@ -185,10 +166,21 @@ export default function BatchesTab() {
     }
   };
 
+  const isFormValid =
+    form.name.trim() &&
+    form.sportId &&
+    form.days.length > 0 &&
+    form.startTime &&
+    form.endTime &&
+    form.maxStudents > 0 &&
+    form.ageGroup.trim() &&
+    form.level &&
+    form.venue.trim();
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-2">🏫 Batches</h2>
+        <h2 className="text-2xl font-bold flex items-center gap-2">🏫 Batches</h2>
         <button
           className="bg-gradient-to-r from-red-600 to-orange-600 text-white px-4 py-2 rounded-xl font-semibold shadow hover:scale-105 transition"
           onClick={openAddModal}
@@ -196,183 +188,252 @@ export default function BatchesTab() {
           + Add Batch
         </button>
       </div>
-      <div className="overflow-x-auto">
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Sport</TableCell>
-                <TableCell>Coach</TableCell>
-                <TableCell>Students</TableCell>
-                <TableCell>Schedule</TableCell>
-                <TableCell>Venue</TableCell>
-                <TableCell>Active</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {batches.map((batch) => (
-                <TableRow key={batch._id} className="border-b border-gray-800 hover:bg-gray-800 transition">
-                  <TableCell className="p-3 text-white font-semibold">{batch.name}</TableCell>
-                  <TableCell className="p-3 text-gray-300">{batch.sport?.name}</TableCell>
-                  <TableCell className="p-3">
-                    <Select
-                      value={batch.coachId || ""}
-                      onChange={(e) => handleAssignCoach(batch._id, e.target.value as string)}
-                      className="bg-gray-800 text-white rounded px-2 py-1"
-                    >
-                      <MenuItem value="">Select Coach</MenuItem>
-                      {coaches.map((coach: any) => (
-                        <MenuItem key={coach.userId} value={coach.userId}>
-                          {coach.firstName} {coach.lastName}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </TableCell>
-                  <TableCell className="p-3 text-white">{batch.students.length}</TableCell>
-                  <TableCell className="p-3 text-gray-300">
-                    {batch.schedule.days.join(", ")}<br />
-                    {batch.schedule.startTime} - {batch.schedule.endTime}
-                  </TableCell>
-                  <TableCell className="p-3 text-white">{batch.venue}</TableCell>
-                  <TableCell className="p-3">
-                    <span className={`px-2 py-1 rounded text-xs font-bold ${batch.isActive ? "bg-green-700 text-green-300" : "bg-gray-700 text-gray-400"}`}>
-                      {batch.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </TableCell>
-                  <TableCell className="p-3 flex gap-2">
-                    <Button
-                      variant="contained"
-                      color="primary"
+      <div className="overflow-x-auto rounded-xl shadow bg-card">
+        <table className="min-w-full admin-table">
+          <thead>
+            <tr className="bg-muted">
+              <th className="p-3 text-left">Name</th>
+              <th className="p-3 text-left">Sport</th>
+              <th className="p-3 text-left">Coach</th>
+              <th className="p-3 text-left">Schedule</th>
+              <th className="p-3 text-left">Max Students</th>
+              <th className="p-3 text-left">Level</th>
+              <th className="p-3 text-left">Venue</th>
+              <th className="p-3 text-left">Active</th>
+              <th className="p-3 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {batches.map((batch, idx) => (
+              <tr
+                key={batch._id}
+                className={`border-b border-border transition ${idx % 2 === 0 ? 'bg-card' : 'bg-[#23232a]'} hover:bg-muted`}
+              >
+                <td className="p-3 font-medium">{batch.name}</td>
+                <td className="p-3">{batch.sport?.name}</td>
+                <td className="p-3">
+                  <select
+                    value={batch.coachId || ""}
+                    onChange={(e) => handleAssignCoach(batch._id, e.target.value)}
+                    className="admin-input"
+                  >
+                    <option value="">Unassigned</option>
+                    {coaches.map((coach: any) => (
+                      <option key={coach.userId} value={coach.userId}>{coach.firstName} {coach.lastName}</option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-3">
+                  {batch.schedule.days.join(", ")}<br />
+                  {batch.schedule.startTime} - {batch.schedule.endTime}
+                </td>
+                <td className="p-3">{batch.maxStudents}</td>
+                <td className="p-3 capitalize">{batch.level}</td>
+                <td className="p-3">{batch.venue}</td>
+                <td className="p-3">
+                  <input
+                    type="checkbox"
+                    checked={batch.isActive}
+                    readOnly
+                    className="text-primary"
+                  />
+                </td>
+                <td className="p-3">
+                  <div className="flex gap-2">
+                    <button
+                      className="admin-button-secondary text-primary hover:text-white"
                       onClick={() => openEditModal(batch)}
+                      title="Edit Batch"
                     >
                       Edit
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="error"
+                    </button>
+                    <button
+                      className="admin-button-secondary text-primary hover:text-white"
                       onClick={() => handleDelete(batch._id)}
+                      title="Delete Batch"
                     >
                       Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {batches.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center text-gray-500 py-8">No batches found.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      {/* Modal for Add/Edit */}
+
+      {/* Add/Edit Batch Modal */}
       {modalOpen && (
-        <Dialog open={modalOpen} onClose={closeModal} className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <Box className="bg-gray-900 rounded-xl p-8 w-full max-w-2xl space-y-4 border border-gray-700 shadow-xl animate-fadeIn">
-            <DialogTitle className="text-xl font-bold text-white mb-2">{editBatch ? "Edit Batch" : "Add Batch"}</DialogTitle>
-            {error && <div className="text-red-400 text-sm mb-2">{error}</div>}
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-300 mb-1">Name</label>
-                  <TextField name="name" value={form.name} onChange={handleChange} required className="w-full p-2 rounded bg-gray-800 text-white" />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1">Sport</label>
-                  <Select name="sportId" value={form.sportId} onChange={handleChange} required className="w-full p-2 rounded bg-gray-800 text-white">
-                    <MenuItem value="">Select Sport</MenuItem>
-                    {sports.map((sport: any) => (
-                      <MenuItem key={sport._id} value={sport._id}>{sport.name}</MenuItem>
-                    ))}
-                  </Select>
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1">Coach (Optional)</label>
-                  <Select name="coachId" value={form.coachId} onChange={handleChange} className="w-full p-2 rounded bg-gray-800 text-white">
-                    <MenuItem value="">Select Coach</MenuItem>
-                    {coaches.map((coach: any) => (
-                      <MenuItem key={coach.userId} value={coach.userId}>{coach.firstName} {coach.lastName}</MenuItem>
-                    ))}
-                  </Select>
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1">Max Students</label>
-                  <TextField name="maxStudents" type="number" value={form.maxStudents} onChange={handleChange} required className="w-full p-2 rounded bg-gray-800 text-white" />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1">Start Time</label>
-                  <TextField name="startTime" type="time" value={form.startTime} onChange={handleChange} required className="w-full p-2 rounded bg-gray-800 text-white" />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1">End Time</label>
-                  <TextField name="endTime" type="time" value={form.endTime} onChange={handleChange} required className="w-full p-2 rounded bg-gray-800 text-white" />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1">Age Group</label>
-                  <TextField name="ageGroup" value={form.ageGroup} onChange={handleChange} required className="w-full p-2 rounded bg-gray-800 text-white" />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1">Level</label>
-                  <Select name="level" value={form.level} onChange={handleChange} required className="w-full p-2 rounded bg-gray-800 text-white">
-                    <MenuItem value="beginner">Beginner</MenuItem>
-                    <MenuItem value="intermediate">Intermediate</MenuItem>
-                    <MenuItem value="advanced">Advanced</MenuItem>
-                  </Select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-gray-300 mb-1">Venue</label>
-                <TextField name="venue" value={form.venue} onChange={handleChange} required className="w-full p-2 rounded bg-gray-800 text-white" />
-              </div>
-              <div>
-                <label className="block text-gray-300 mb-1">Schedule Days</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {weekDays.map(day => (
-                    <FormControlLabel
-                      key={day}
-                      control={
-                        <Checkbox
-                          checked={form.days.includes(day)}
-                          onChange={(e) => handleDayToggle(day)}
-                        />
-                      }
-                      label={day.slice(0, 3)}
-                    />
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <FormControlLabel
-                  control={<Checkbox name="isActive" checked={form.isActive} onChange={handleChange} />}
-                  label="Active"
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-card rounded-xl shadow-lg p-6 w-full max-w-lg">
+            <div className="text-2xl font-bold mb-2 text-center">
+              {editBatch ? "Edit Batch" : "Add New Batch"}
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Basic Info */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">Batch Name <span className="text-red-500">*</span></label>
+                <input
+                  className="admin-input"
+                  placeholder="e.g. Morning Football Batch"
+                  name="name"
+                  value={form.name}
+                  onChange={handleInputChange}
+                  required
                 />
               </div>
-              <div className="flex gap-2 mt-4">
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  variant="contained"
-                  color="primary"
-                  className="bg-gradient-to-r from-red-600 to-orange-600 text-white px-4 py-2 rounded-xl font-semibold shadow hover:scale-105 transition flex-1"
-                >
-                  {loading ? "Saving..." : "Save"}
-                </Button>
-                <Button
-                  type="button"
-                  onClick={closeModal}
-                  variant="contained"
-                  color="secondary"
-                  className="bg-gray-700 text-white px-4 py-2 rounded-xl font-semibold flex-1"
-                >
-                  Cancel
-                </Button>
+              {/* Sport & Coach */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">Select Sport <span className="text-red-500">*</span></label>
+                  <select
+                    className="admin-input"
+                    name="sportId"
+                    value={form.sportId}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">Select Sport</option>
+                    {sports.map((sport: any) => (
+                      <option key={sport._id} value={sport._id}>{sport.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">Assign Coach</label>
+                  <select
+                    className="admin-input"
+                    name="coachId"
+                    value={form.coachId}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Unassigned</option>
+                    {coaches.map((coach: any) => (
+                      <option key={coach.userId} value={coach.userId}>{coach.firstName} {coach.lastName}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              {/* Schedule */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">Schedule <span className="text-red-500">*</span></label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {weekDays.map((day) => (
+                    <label key={day} className="flex items-center gap-1 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={form.days.includes(day)}
+                        onChange={() => handleDayToggle(day)}
+                        className="accent-primary"
+                      />
+                      {day.charAt(0).toUpperCase() + day.slice(1)}
+                    </label>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium">Start Time <span className="text-red-500">*</span></label>
+                    <input
+                      className="admin-input"
+                      type="time"
+                      name="startTime"
+                      value={form.startTime}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium">End Time <span className="text-red-500">*</span></label>
+                    <input
+                      className="admin-input"
+                      type="time"
+                      name="endTime"
+                      value={form.endTime}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              {/* Numbers & Age Group */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">Max Students <span className="text-red-500">*</span></label>
+                  <input
+                    className="admin-input"
+                    type="number"
+                    name="maxStudents"
+                    min={1}
+                    placeholder="e.g. 20"
+                    value={form.maxStudents}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">Age Group <span className="text-red-500">*</span></label>
+                  <input
+                    className="admin-input"
+                    name="ageGroup"
+                    placeholder="e.g. 6-10, 11-15, Adults"
+                    value={form.ageGroup}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">Example: 6-10, 11-15, Adults</p>
+                </div>
+              </div>
+              {/* Level & Venue */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">Level <span className="text-red-500">*</span></label>
+                  <select
+                    className="admin-input"
+                    name="level"
+                    value={form.level}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">Venue <span className="text-red-500">*</span></label>
+                  <input
+                    className="admin-input"
+                    name="venue"
+                    placeholder="e.g. Main Ground, Hall A"
+                    value={form.venue}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+              {/* Active Checkbox */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="isActive"
+                  checked={form.isActive}
+                  onChange={handleCheckboxChange}
+                  className="text-primary"
+                />
+                <span className="text-sm">Active</span>
+              </div>
+              {/* Error Message */}
+              {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+              {/* Actions */}
+              <div className="flex justify-end gap-2 pt-4 border-t border-border">
+                <button type="button" className="admin-button-secondary" onClick={closeModal}>Cancel</button>
+                <button type="submit" className="admin-button-primary" disabled={loading || !isFormValid}>
+                  {loading ? 'Saving...' : 'Save'}
+                </button>
               </div>
             </form>
-          </Box>
-        </Dialog>
+          </div>
+        </div>
       )}
     </div>
   );

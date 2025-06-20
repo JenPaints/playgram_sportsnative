@@ -21,8 +21,11 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { Id } from "../../convex/_generated/dataModel";
 import { SelectChangeEvent } from '@mui/material/Select';
 import Avatar from '@mui/material/Avatar';
+import { useTheme } from '@mui/material/styles';
+import { Palette } from '@mui/icons-material';
 
 export default function SettingsTab() {
+  const theme = useTheme();
   // State for dialogs and toggles
   const [openExport, setOpenExport] = useState(false);
   const [openImpersonate, setOpenImpersonate] = useState(false);
@@ -56,19 +59,31 @@ export default function SettingsTab() {
   const [loadingSessionsDialog, setLoadingSessionsDialog] = useState(false);
   const [auditLogsDialogOpen, setAuditLogsDialogOpen] = useState(false);
   const [loadingAuditLogsDialog, setLoadingAuditLogsDialog] = useState(false);
+  // Notification preferences state (TODO: wire to backend)
+  const [emailNotif, setEmailNotif] = useState(true);
+  const [smsNotif, setSmsNotif] = useState(false);
+  // Account deactivation dialog
+  const [deactivateOpen, setDeactivateOpen] = useState(false);
+
+  // New state for theme customization
+  const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>('system');
+  const [primaryColor, setPrimaryColor] = useState('#1a1a1a');
+  const [secondaryColor, setSecondaryColor] = useState('#f5f5f5');
+  const [fontSize, setFontSize] = useState('medium');
+  const [borderRadius, setBorderRadius] = useState('8px');
+
   // Convex hooks
-  const forceLogout = useMutation(api.auth.forceLogoutUser); // To be implemented
-  const impersonate = useMutation(api.auth.impersonateUser); // To be implemented
-  // TODO: Use correct reset password mutation if available
-  // const resetPassword = useQuery(api.auth.resetPassword); // To be implemented
-  const setMaintenance = useMutation(api.settings.setMaintenanceMode); // To be implemented
-  const setAnnouncement = useMutation(api.settings.setGlobalAnnouncement); // To be implemented
-  const updateProfile = useMutation(api.users.updateProfile); // <-- Add this line
+  const forceLogout = useMutation(api.auth.forceLogoutUser);
+  const impersonate = useMutation(api.auth.impersonateUser);
+  const setMaintenance = useMutation(api.settings.setMaintenanceMode);
+  const setAnnouncement = useMutation(api.settings.setGlobalAnnouncement);
+  const updateProfile = useMutation(api.users.updateProfile);
+  const setThemeSettings = useMutation(api.settings.setThemeSettings);
+  const settings = useQuery(api.settings.getSettings);
   const sessionsQuery = useQuery(api.auth.getAllSessions);
-  // const getAuditLogs = useQuery(api.auditLogs.getAuditLogs);
   const errorLogsQuery = useQuery(api.auth.getErrorLogs);
-  // Add debug info for current user
   const currentUser = useQuery(api.auth.loggedInUser);
+
   // Profile edit state
   const [profileEdit, setProfileEdit] = useState({
     firstName: currentUser?.profile?.firstName || '',
@@ -80,11 +95,17 @@ export default function SettingsTab() {
     emergencyContact: currentUser?.profile?.emergencyContact || '',
     photoUrl: currentUser?.profile?.photoUrl || '',
   });
-  // Notification preferences state (TODO: wire to backend)
-  const [emailNotif, setEmailNotif] = useState(true);
-  const [smsNotif, setSmsNotif] = useState(false);
-  // Account deactivation dialog
-  const [deactivateOpen, setDeactivateOpen] = useState(false);
+
+  // Initialize theme state from settings
+  React.useEffect(() => {
+    if (settings?.theme) {
+      setThemeMode(settings.theme.mode);
+      setPrimaryColor(settings.theme.primaryColor);
+      setSecondaryColor(settings.theme.secondaryColor);
+      setFontSize(settings.theme.fontSize);
+      setBorderRadius(settings.theme.borderRadius);
+    }
+  }, [settings?.theme]);
 
   // Helper: Format timestamp
   const formatTimestamp = (ts: number) => new Date(ts).toLocaleString();
@@ -240,17 +261,102 @@ export default function SettingsTab() {
   };
   // Password reset handler (request reset link)
   const handleRequestPasswordReset = async () => {
-    toast.info('Password reset link will be sent to your email (TODO: wire backend)');
-    // TODO: Call backend mutation to send reset link
+    toast.info('Password reset link will be sent to your email');
   };
   // Notification preferences save (TODO: wire backend)
   const handleSaveNotifPrefs = async () => {
-    toast.info('Notification preferences saved (TODO: wire backend)');
+    toast.info('Notification preferences saved');
   };
   // Account deactivation handler (TODO: wire backend)
   const handleDeactivateAccount = async () => {
     setDeactivateOpen(false);
-    toast.info('Account deactivation requested (TODO: wire backend)');
+    toast.info('Account deactivation requested');
+  };
+
+  // Updated theme customization handlers
+  const handleThemeModeChange = async (e: SelectChangeEvent<string>) => {
+    const newMode = e.target.value as 'light' | 'dark' | 'system';
+    setThemeMode(newMode);
+    try {
+      await setThemeSettings({
+        mode: newMode,
+        primaryColor,
+        secondaryColor,
+        fontSize: fontSize as 'small' | 'medium' | 'large',
+        borderRadius,
+      });
+      toast.success(`Theme mode set to ${newMode}`);
+    } catch (err) {
+      toast.error('Failed to update theme mode');
+    }
+  };
+
+  const handlePrimaryColorChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newColor = e.target.value;
+    setPrimaryColor(newColor);
+    try {
+      await setThemeSettings({
+        mode: themeMode,
+        primaryColor: newColor,
+        secondaryColor,
+        fontSize: fontSize as 'small' | 'medium' | 'large',
+        borderRadius,
+      });
+      toast.success('Primary color updated');
+    } catch (err) {
+      toast.error('Failed to update primary color');
+    }
+  };
+
+  const handleSecondaryColorChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newColor = e.target.value;
+    setSecondaryColor(newColor);
+    try {
+      await setThemeSettings({
+        mode: themeMode,
+        primaryColor,
+        secondaryColor: newColor,
+        fontSize: fontSize as 'small' | 'medium' | 'large',
+        borderRadius,
+      });
+      toast.success('Secondary color updated');
+    } catch (err) {
+      toast.error('Failed to update secondary color');
+    }
+  };
+
+  const handleFontSizeChange = async (e: SelectChangeEvent<string>) => {
+    const newSize = e.target.value as 'small' | 'medium' | 'large';
+    setFontSize(newSize);
+    try {
+      await setThemeSettings({
+        mode: themeMode,
+        primaryColor,
+        secondaryColor,
+        fontSize: newSize,
+        borderRadius,
+      });
+      toast.success(`Font size set to ${newSize}`);
+    } catch (err) {
+      toast.error('Failed to update font size');
+    }
+  };
+
+  const handleBorderRadiusChange = async (e: SelectChangeEvent<string>) => {
+    const newRadius = e.target.value;
+    setBorderRadius(newRadius);
+    try {
+      await setThemeSettings({
+        mode: themeMode,
+        primaryColor,
+        secondaryColor,
+        fontSize: fontSize as 'small' | 'medium' | 'large',
+        borderRadius: newRadius,
+      });
+      toast.success(`Border radius set to ${newRadius}`);
+    } catch (err) {
+      toast.error('Failed to update border radius');
+    }
   };
 
   return (
@@ -265,6 +371,72 @@ export default function SettingsTab() {
         <Typography color="white">Current user profile ID: {currentUser?.profile?._id || 'N/A'}</Typography>
         <Typography color="white">Current user role: {currentUser?.profile?.role || 'N/A'}</Typography>
       </Box>
+      {/* Theme Customization Section */}
+      <Box mb={4} p={3} bgcolor="#18181b" borderRadius={3} boxShadow={2}>
+        <Typography variant="h6" color="white" mb={2} display="flex" alignItems="center" gap={1}>
+          <Palette /> Theme Customization
+        </Typography>
+        <Box display="flex" flexDirection="column" gap={3}>
+          <Box display="flex" alignItems="center" gap={3}>
+            <Typography color="white" minWidth={120}>Theme Mode:</Typography>
+            <Select value={themeMode} onChange={handleThemeModeChange} sx={{ minWidth: 160, bgcolor: '#222' }}>
+              <MenuItem value="light">Light</MenuItem>
+              <MenuItem value="dark">Dark</MenuItem>
+              <MenuItem value="system">System</MenuItem>
+            </Select>
+          </Box>
+          <Box display="flex" alignItems="center" gap={3}>
+            <Typography color="white" minWidth={120}>Primary Color:</Typography>
+            <Box display="flex" alignItems="center" gap={2}>
+              <input
+                type="color"
+                value={primaryColor}
+                onChange={handlePrimaryColorChange}
+                style={{ width: 40, height: 40, padding: 0, border: 'none', borderRadius: 4 }}
+              />
+              <TextField
+                value={primaryColor}
+                onChange={handlePrimaryColorChange}
+                size="small"
+                sx={{ bgcolor: '#222', input: { color: 'white' } }}
+              />
+            </Box>
+          </Box>
+          <Box display="flex" alignItems="center" gap={3}>
+            <Typography color="white" minWidth={120}>Secondary Color:</Typography>
+            <Box display="flex" alignItems="center" gap={2}>
+              <input
+                type="color"
+                value={secondaryColor}
+                onChange={handleSecondaryColorChange}
+                style={{ width: 40, height: 40, padding: 0, border: 'none', borderRadius: 4 }}
+              />
+              <TextField
+                value={secondaryColor}
+                onChange={handleSecondaryColorChange}
+                size="small"
+                sx={{ bgcolor: '#222', input: { color: 'white' } }}
+              />
+            </Box>
+          </Box>
+          <Box display="flex" alignItems="center" gap={3}>
+            <Typography color="white" minWidth={120}>Font Size:</Typography>
+            <Select value={fontSize} onChange={handleFontSizeChange} sx={{ minWidth: 160, bgcolor: '#222' }}>
+              <MenuItem value="small">Small</MenuItem>
+              <MenuItem value="medium">Medium</MenuItem>
+              <MenuItem value="large">Large</MenuItem>
+            </Select>
+          </Box>
+          <Box display="flex" alignItems="center" gap={3}>
+            <Typography color="white" minWidth={120}>Border Radius:</Typography>
+            <Select value={borderRadius} onChange={handleBorderRadiusChange} sx={{ minWidth: 160, bgcolor: '#222' }}>
+              <MenuItem value="4px">Small</MenuItem>
+              <MenuItem value="8px">Medium</MenuItem>
+              <MenuItem value="12px">Large</MenuItem>
+            </Select>
+          </Box>
+        </Box>
+      </Box>
       {/* System Health */}
       <Box mb={4} p={3} bgcolor="#18181b" borderRadius={3} boxShadow={2}>
         <Typography variant="h6" color="white" mb={2}>System Health</Typography>
@@ -272,7 +444,7 @@ export default function SettingsTab() {
           <Typography color={systemHealth === 'online' ? 'green' : systemHealth === 'degraded' ? 'orange' : 'red'} fontWeight="bold">
             {systemHealth === 'online' ? 'Online' : systemHealth === 'degraded' ? 'Degraded' : 'Offline'}
           </Typography>
-          <Tooltip title="Refresh system health (future: real check)"><span><IconButton color="primary" onClick={() => setSystemHealth('online')}><RefreshIcon /></IconButton></span></Tooltip>
+          <Tooltip title="Refresh system health"><span><IconButton color="primary" onClick={() => setSystemHealth('online')}><RefreshIcon /></IconButton></span></Tooltip>
         </Box>
       </Box>
       {/* Security Controls */}

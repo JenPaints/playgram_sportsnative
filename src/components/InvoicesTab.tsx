@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../convex/_generated/api";
+import { api } from "../../convex/_generated/api";
 import { useState } from "react";
-import { Id } from "../convex/_generated/dataModel";
+import { Id } from "../../convex/_generated/dataModel";
 import { motion, AnimatePresence } from "framer-motion";
 import GenerateInvoice from "./GenerateInvoice";
 import { LoadingSpinner } from "./ui/LoadingSpinner";
@@ -42,20 +42,16 @@ interface Invoice {
   refundAmount?: number;
   refundReason?: string;
   refundDate?: number;
-  user: {
+  user?: {
     name: string;
     email: string;
     phone?: string;
   };
-  enrollment: {
+  enrollment?: {
     sportId: Id<"sports">;
     batchId: Id<"batches">;
-    sport: {
-      name: string;
-    };
-    batch: {
-      name: string;
-    };
+    sport?: { name: string };
+    batch?: { name: string };
   };
 }
 
@@ -94,14 +90,14 @@ export default function InvoicesTab() {
   const [selectedStudents, setSelectedStudents] = useState<Id<"users">[]>([]);
   const [showBulkInvoiceModal, setShowBulkInvoiceModal] = useState(false);
 
-  const payments = useQuery(api.payments.listPayments, {
+  const invoices = useQuery(api.payments.listPayments, {
     status: filterStatus === "all" ? undefined : filterStatus,
     startDate: dateRange.start ? new Date(dateRange.start).getTime() : undefined,
     endDate: dateRange.end ? new Date(dateRange.end).getTime() : undefined,
   }) as Invoice[] || [];
 
-  const usersQuery = useQuery(api.users.listUsers);
-  const enrollmentsQuery = useQuery(api.enrollments.listEnrollments);
+  const usersQuery = useQuery(api.users.listUsers, {});
+  const enrollmentsQuery = useQuery(api.enrollments.listEnrollments, {});
 
   const users = usersQuery?.map((user: { _id: Id<"users">; name?: string; email?: string }) => ({
     _id: user._id,
@@ -112,8 +108,8 @@ export default function InvoicesTab() {
 
   const enrollments = enrollmentsQuery || [];
 
-  const filteredPayments = payments.filter(payment => {
-    const searchStr = `${payment.user.name} ${payment.user.email} ${payment.enrollment.sport.name} ${payment.enrollment.batch.name} ${payment.transactionId || ''}`.toLowerCase();
+  const filteredPayments = invoices.filter(payment => {
+    const searchStr = `${payment.user?.name} ${payment.user?.email} ${payment.enrollment?.sport?.name} ${payment.enrollment?.batch?.name} ${payment.transactionId || ''}`.toLowerCase();
     return searchStr.includes(searchQuery.toLowerCase());
   });
 
@@ -154,20 +150,6 @@ export default function InvoicesTab() {
     setModalOpen(true);
   };
 
-  const handleDownloadInvoice = async (invoice: Invoice) => {
-    try {
-      setLoading(true);
-      setError("");
-      const { url } = await generatePDF({ invoiceId: invoice._id });
-      window.open(url, '_blank');
-    } catch (err) {
-      console.error('Error downloading invoice:', err);
-      setError('Failed to download invoice');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSendInvoice = async (invoice: Invoice) => {
     try {
       setLoading(true);
@@ -182,44 +164,7 @@ export default function InvoicesTab() {
     }
   };
 
-  const handleMarkAsPaid = async (invoice: Invoice) => {
-    try {
-      setLoading(true);
-      setError("");
-      await markAsPaid({
-        id: invoice._id,
-        method: "cash",
-        notes: "Marked as paid by admin",
-      });
-      setModalOpen(false);
-    } catch (err) {
-      console.error('Error marking as paid:', err);
-      setError('Failed to mark as paid');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGenerateBulkInvoices = async (enrollmentId: Id<"enrollments">, amount: number) => {
-    try {
-      setLoading(true);
-      setError("");
-      await generateBulkInvoices({
-        enrollmentId,
-        amount,
-        userIds: selectedStudents,
-      });
-      setShowBulkInvoiceModal(false);
-      setSelectedStudents([]);
-    } catch (err) {
-      console.error('Error generating bulk invoices:', err);
-      setError('Failed to generate bulk invoices');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!payments) {
+  if (!invoices) {
     return (
       <div className="flex items-center justify-center h-64">
         <LoadingSpinner size="lg" />
@@ -229,359 +174,145 @@ export default function InvoicesTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-2">📄 Invoices</h2>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowBulkInvoiceModal(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+        <h2 className="text-2xl font-bold flex items-center gap-2">🧾 Invoices</h2>
+        <div className="flex flex-wrap gap-2 items-center">
+          <input
+            type="text"
+            className="admin-input"
+            placeholder="Search by user, email, or invoice ID"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+          <select
+            className="admin-input"
+            value={filterStatus}
+            onChange={e => setFilterStatus(e.target.value as any)}
           >
-            Generate Bulk Invoices
-          </button>
-          <button
-            onClick={() => setShowGenerateInvoice(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
-          >
-            Generate Invoice
-          </button>
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+            <option value="attempted">Attempted</option>
+          </select>
+          <input
+            type="date"
+            className="admin-input"
+            value={dateRange.start}
+            onChange={e => setDateRange(r => ({ ...r, start: e.target.value }))}
+          />
+          <input
+            type="date"
+            className="admin-input"
+            value={dateRange.end}
+            onChange={e => setDateRange(r => ({ ...r, end: e.target.value }))}
+          />
         </div>
       </div>
-
-      {error && (
-        <div className="bg-red-900/50 border border-red-700 text-red-300 px-4 py-2 rounded-lg">
-          {error}
-        </div>
-      )}
-
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 items-center bg-gray-800 p-4 rounded-lg">
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value as any)}
-          className="bg-gray-700 text-white rounded px-3 py-2"
-        >
-          <option value="all">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="completed">Completed</option>
-          <option value="failed">Failed</option>
-          <option value="attempted">Attempted</option>
-        </select>
-
-        <input
-          type="date"
-          value={dateRange.start}
-          onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-          className="bg-gray-700 text-white rounded px-3 py-2"
-        />
-        <input
-          type="date"
-          value={dateRange.end}
-          onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-          className="bg-gray-700 text-white rounded px-3 py-2"
-        />
-
-        <input
-          type="text"
-          placeholder="Search by student name, email, sport, batch..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="bg-gray-700 text-white rounded px-3 py-2 flex-1"
-        />
-      </div>
-
-      <div className="overflow-x-auto">
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Student</TableCell>
-                <TableCell>Sport/Batch</TableCell>
-                <TableCell>Amount</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Method</TableCell>
-                <TableCell>Transaction ID</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredPayments.map((payment) => (
-                <TableRow key={payment._id} className="border-b border-gray-800 hover:bg-gray-800 transition">
-                  <TableCell className="p-3 text-gray-300">{formatDate(payment.createdAt)}</TableCell>
-                  <TableCell className="p-3">
-                    <div className="text-gray-300">
-                      <div className="font-medium">{payment.user.name}</div>
-                      <div className="text-sm text-gray-400">{payment.user.email}</div>
-                      {payment.user.phone && (
-                        <div className="text-sm text-gray-400">{payment.user.phone}</div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="p-3">
-                    <div className="text-gray-300">
-                      <div>{payment.enrollment.sport.name}</div>
-                      <div className="text-sm text-gray-400">{payment.enrollment.batch.name}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="p-3 text-orange-400 font-bold">{formatAmount(payment.amount)}</TableCell>
-                  <TableCell className="p-3">
-                    <span className={`px-2 py-1 rounded text-xs font-bold ${getStatusColor(payment.status)}`}>
-                      {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+      <div className="overflow-x-auto rounded-xl shadow bg-card">
+        <table className="min-w-full admin-table">
+          <thead>
+            <tr className="bg-muted">
+              <th className="p-3 text-left">Invoice ID</th>
+              <th className="p-3 text-left">User</th>
+              <th className="p-3 text-left">Amount</th>
+              <th className="p-3 text-left">Status</th>
+              <th className="p-3 text-left">Method</th>
+              <th className="p-3 text-left">Date</th>
+              <th className="p-3 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredPayments.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                  No invoices found.
+                </td>
+              </tr>
+            ) : (
+              filteredPayments.map((inv) => (
+                <tr key={inv._id} className="border-b border-border hover:bg-muted transition">
+                  <td className="p-3 font-mono text-xs">{inv._id}</td>
+                  <td className="p-3">{inv.user?.name || inv.userId}</td>
+                  <td className="p-3">₹{inv.amount}</td>
+                  <td className="p-3">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${inv.status === "completed" ? "bg-green-100 text-green-700" : inv.status === "pending" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}>
+                      {inv.status.charAt(0).toUpperCase() + inv.status.slice(1)}
                     </span>
-                    {payment.refunded && (
-                      <div className="text-xs text-red-400 mt-1">Refunded</div>
-                    )}
-                  </TableCell>
-                  <TableCell className="p-3 text-gray-300">{payment.method}</TableCell>
-                  <TableCell className="p-3 text-gray-300 font-mono text-sm">{payment.transactionId || '-'}</TableCell>
-                  <TableCell className="p-3">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleViewInvoice(payment)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
-                      >
-                        View
-                      </button>
-                      <button
-                        onClick={() => handleDownloadInvoice(payment)}
-                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
-                        disabled={loading}
-                      >
-                        {loading ? 'Downloading...' : 'Download'}
-                      </button>
-                      <button
-                        onClick={() => handleSendInvoice(payment)}
-                        className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm"
-                        disabled={loading}
-                      >
-                        Send
-                      </button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {filteredPayments.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center text-gray-500 py-8">No invoices found.</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                  </td>
+                  <td className="p-3">{inv.method}</td>
+                  <td className="p-3">{new Date(inv.createdAt).toLocaleString()}</td>
+                  <td className="p-3">
+                    <button
+                      className="admin-button-secondary text-primary hover:text-white"
+                      onClick={() => { setSelectedInvoice(inv); setModalOpen(true); }}
+                      title="View Details"
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
-
       {/* Invoice Details Modal */}
-      <AnimatePresence>
-        {modalOpen && selectedInvoice && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-gray-900 rounded-xl p-6 max-w-2xl w-full mx-4"
-            >
-              <div className="flex justify-between items-start mb-6">
-                <h3 className="text-xl font-bold text-white">Invoice Details</h3>
-                <button
-                  onClick={() => setModalOpen(false)}
-                  className="text-gray-400 hover:text-white"
-                >
-                  ✕
-                </button>
-              </div>
-
+      {modalOpen && selectedInvoice && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-card rounded-xl shadow-lg p-0 w-full max-w-md">
+            <div className="p-6 max-h-[80vh] overflow-y-auto">
+              <div className="text-2xl font-bold mb-4 text-center">Invoice Details</div>
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="text-gray-400 text-sm">Student Information</h4>
-                    <p className="text-white font-medium">{selectedInvoice.user.name}</p>
-                    <p className="text-gray-300">{selectedInvoice.user.email}</p>
-                    {selectedInvoice.user.phone && (
-                      <p className="text-gray-300">{selectedInvoice.user.phone}</p>
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="text-gray-400 text-sm">Enrollment Details</h4>
-                    <p className="text-white">{selectedInvoice.enrollment.sport.name}</p>
-                    <p className="text-gray-300">{selectedInvoice.enrollment.batch.name}</p>
-                  </div>
+                <div>
+                  <span className="font-semibold">Invoice ID:</span> <span className="font-mono text-xs">{selectedInvoice._id}</span>
                 </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="text-gray-400 text-sm">Payment Information</h4>
-                    <p className="text-white">Amount: {formatAmount(selectedInvoice.amount)}</p>
-                    <p className="text-gray-300">Method: {selectedInvoice.method}</p>
-                    <p className="text-gray-300">Status: {selectedInvoice.status}</p>
-                    {selectedInvoice.transactionId && (
-                      <p className="text-gray-300">Transaction ID: {selectedInvoice.transactionId}</p>
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="text-gray-400 text-sm">Dates</h4>
-                    <p className="text-gray-300">Created: {formatDate(selectedInvoice.createdAt)}</p>
-                    {selectedInvoice.paymentDate && (
-                      <p className="text-gray-300">Paid: {formatDate(selectedInvoice.paymentDate)}</p>
-                    )}
-                    {selectedInvoice.refundDate && (
-                      <p className="text-gray-300">Refunded: {formatDate(selectedInvoice.refundDate)}</p>
-                    )}
-                  </div>
+                <div>
+                  <span className="font-semibold">User:</span> {selectedInvoice.user?.name || selectedInvoice.userId}
                 </div>
-
+                <div>
+                  <span className="font-semibold">Email:</span> {selectedInvoice.user?.email || "-"}
+                </div>
+                <div>
+                  <span className="font-semibold">Amount:</span> ₹{selectedInvoice.amount}
+                </div>
+                <div>
+                  <span className="font-semibold">Status:</span> <span className={`px-2 py-1 rounded-full text-xs font-semibold ${selectedInvoice.status === "completed" ? "bg-green-100 text-green-700" : selectedInvoice.status === "pending" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}>{selectedInvoice.status.charAt(0).toUpperCase() + selectedInvoice.status.slice(1)}</span>
+                </div>
+                <div>
+                  <span className="font-semibold">Method:</span> {selectedInvoice.method}
+                </div>
+                <div>
+                  <span className="font-semibold">Date:</span> {new Date(selectedInvoice.createdAt).toLocaleString()}
+                </div>
+                {selectedInvoice.transactionId && (
+                  <div>
+                    <span className="font-semibold">Transaction ID:</span> <span className="font-mono text-xs">{selectedInvoice.transactionId}</span>
+                  </div>
+                )}
                 {selectedInvoice.notes && (
                   <div>
-                    <h4 className="text-gray-400 text-sm">Notes</h4>
-                    <p className="text-gray-300">{selectedInvoice.notes}</p>
+                    <span className="font-semibold">Notes:</span> {selectedInvoice.notes}
                   </div>
                 )}
-
-                {selectedInvoice.refunded && (
-                  <div className="bg-red-900/30 p-4 rounded-lg">
-                    <h4 className="text-red-400 text-sm font-medium">Refund Information</h4>
-                    <p className="text-red-300">Amount: {formatAmount(selectedInvoice.refundAmount || 0)}</p>
-                    <p className="text-red-300">Reason: {selectedInvoice.refundReason}</p>
-                    <p className="text-red-300">Date: {formatDate(selectedInvoice.refundDate || 0)}</p>
+                {selectedInvoice.enrollment?.sport?.name && (
+                  <div>
+                    <span className="font-semibold">Sport:</span> {selectedInvoice.enrollment.sport.name}
+                  </div>
+                )}
+                {selectedInvoice.enrollment?.batch?.name && (
+                  <div>
+                    <span className="font-semibold">Batch:</span> {selectedInvoice.enrollment.batch.name}
                   </div>
                 )}
               </div>
-
-              <div className="mt-6 flex justify-end gap-3">
-                {selectedInvoice.status === "pending" && (
-                  <button
-                    onClick={() => handleMarkAsPaid(selectedInvoice)}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-                    disabled={loading}
-                  >
-                    Mark as Paid (Cash)
-                  </button>
-                )}
-                <button
-                  onClick={() => handleDownloadInvoice(selectedInvoice)}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-                  disabled={loading}
-                >
-                  {loading ? 'Downloading...' : 'Download PDF'}
-                </button>
-                <button
-                  onClick={() => handleSendInvoice(selectedInvoice)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
-                  disabled={loading}
-                >
-                  Send Invoice
-                </button>
+              <div className="sticky bottom-0 left-0 right-0 bg-card flex justify-end gap-2 pt-4 border-t border-border -mx-6 px-6 pb-2 mt-6">
+                <button type="button" className="admin-button-secondary" onClick={() => setModalOpen(false)}>Close</button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Generate Invoice Modal */}
-      <AnimatePresence>
-        {showGenerateInvoice && (
-          <GenerateInvoice
-            onClose={() => setShowGenerateInvoice(false)}
-            onSuccess={() => {
-              setShowGenerateInvoice(false);
-              // Refresh the payments list
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Bulk Invoice Generation Modal */}
-      <AnimatePresence>
-        {showBulkInvoiceModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-gray-900 rounded-xl p-6 max-w-2xl w-full mx-4"
-            >
-              <div className="flex justify-between items-start mb-6">
-                <h3 className="text-xl font-bold text-white">Generate Bulk Invoices</h3>
-                <button
-                  onClick={() => setShowBulkInvoiceModal(false)}
-                  className="text-gray-400 hover:text-white"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-gray-400 text-sm mb-2">Select Students</label>
-                  <div className="max-h-60 overflow-y-auto space-y-2">
-                    {users.map((user: User) => (
-                      <label key={user._id} className="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded">
-                        <input
-                          type="checkbox"
-                          checked={selectedStudents.includes(user._id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedStudents([...selectedStudents, user._id]);
-                            } else {
-                              setSelectedStudents(selectedStudents.filter(id => id !== user._id));
-                            }
-                          }}
-                          className="form-checkbox h-4 w-4 text-indigo-600"
-                        />
-                        <span className="text-white">{user.firstName} {user.lastName}</span>
-                        <span className="text-gray-400 text-sm">({user.email})</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-gray-400 text-sm mb-2">Select Enrollment</label>
-                  <select
-                    className="w-full bg-gray-800 text-white px-4 py-2 rounded-lg border border-gray-700"
-                    onChange={(e) => {
-                      const [id, amount] = e.target.value.split(':');
-                      setSelectedEnrollment({ id: id as Id<"enrollments">, amount: Number(amount) });
-                    }}
-                  >
-                    <option value="">Select an enrollment</option>
-                    {enrollments.map((enrollment: Enrollment) => (
-                      <option key={enrollment._id} value={`${enrollment._id}:${enrollment.amount}`}>
-                        {enrollment.sport.name} - {enrollment.batch.name} ({formatAmount(enrollment.amount)})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="mt-6 flex justify-end gap-3">
-                <button
-                  onClick={() => setShowBulkInvoiceModal(false)}
-                  className="px-4 py-2 text-gray-300 hover:text-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => selectedEnrollment && handleGenerateBulkInvoices(selectedEnrollment.id, selectedEnrollment.amount)}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
-                  disabled={!selectedEnrollment || selectedStudents.length === 0 || loading}
-                >
-                  {loading ? 'Generating...' : 'Generate Invoices'}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

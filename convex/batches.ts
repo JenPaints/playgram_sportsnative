@@ -224,7 +224,7 @@ export const getBatchStudents = query({
 export const assignCoach = mutation({
   args: {
     batchId: v.id("batches"),
-    coachId: v.id("users"),
+    coachId: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -239,19 +239,24 @@ export const assignCoach = mutation({
       throw new Error("Admin access required");
     }
 
-    // Verify coach exists and has coach role
-    const coachProfile = await ctx.db
-      .query("profiles")
-      .withIndex("by_user", (q) => q.eq("userId", args.coachId))
-      .first();
-
-    if (!coachProfile || coachProfile.role !== "coach") {
-      throw new Error("Invalid coach");
+    if (args.coachId) {
+      // Verify coach exists and has coach role
+      const coachProfile = await ctx.db
+        .query("profiles")
+        .withIndex("by_user", (q) => q.eq("userId", args.coachId!))
+        .first();
+      if (!coachProfile || coachProfile.role !== "coach") {
+        throw new Error("Invalid coach");
+      }
+      await ctx.db.patch(args.batchId, {
+        coachId: args.coachId,
+      });
+    } else {
+      // Unassign coach
+      await ctx.db.patch(args.batchId, {
+        coachId: undefined,
+      });
     }
-
-    await ctx.db.patch(args.batchId, {
-      coachId: args.coachId,
-    });
 
     return { success: true };
   },
