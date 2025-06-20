@@ -437,14 +437,14 @@ export const listAllAttendance = query({
   returns: v.array(
     v.object({
       _id: v.id("attendance"),
-      _creationTime: v.number(), // Remove v.optional() - _creationTime is always present
+      _creationTime: v.number(), // Add _creationTime field
       userId: v.id("users"),
       batchId: v.id("batches"),
       date: v.string(),
       isPresent: v.boolean(),
       method: v.union(v.literal("qr"), v.literal("manual")),
       notes: v.optional(v.string()),
-      timestamp: v.number(),
+      timestamp: v.float64(), // Changed to v.float64() to match the error
     })
   ),
   handler: async (ctx, args) => {
