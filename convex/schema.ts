@@ -89,6 +89,7 @@ const applicationTables = {
     method: v.union(v.literal("qr"), v.literal("manual")),
     notes: v.optional(v.string()),
     timestamp: v.number(),
+    _creationTime: v.optional(v.number()),
   })
     .index("by_user", ["userId"])
     .index("by_batch", ["batchId"])
