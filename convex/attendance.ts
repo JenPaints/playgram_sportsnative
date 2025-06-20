@@ -448,7 +448,18 @@ export const listAllAttendance = query({
     })
   ),
   handler: async (ctx, args) => {
-    return await ctx.db.query("attendance").order("desc").collect();
+    const records = await ctx.db.query("attendance").order("desc").collect();
+    return records.map(({ _id, userId, batchId, date, isPresent, method, notes, timestamp, _creationTime }) => ({
+      _id,
+      userId,
+      batchId,
+      date,
+      isPresent,
+      method,
+      notes,
+      timestamp,
+      _creationTime,
+    }));
   },
 });
 
