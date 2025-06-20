@@ -444,7 +444,7 @@ export const listAllAttendance = query({
       method: v.union(v.literal("qr"), v.literal("manual")),
       notes: v.optional(v.string()),
       timestamp: v.number(),
-      _creationTime: v.number(),
+      _creationTime: v.optional(v.number()),
     })
   ),
   handler: async (ctx, args) => {
