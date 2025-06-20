@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState, useMemo } from "react";
-import { LoadingSpinner } from "../ui/LoadingSpinner";
+import LoadingSpinner from "../ui/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
 import { Id } from "../../../convex/_generated/dataModel";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -571,4 +571,4 @@ export function PaymentManagement() {
       </AnimatePresence>
     </div>
   );
-} 
+}

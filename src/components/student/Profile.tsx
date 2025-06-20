@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { motion } from "framer-motion";
-import { LoadingSpinner } from "../ui/LoadingSpinner";
+import LoadingSpinner from "../ui/LoadingSpinner";
 import { toast } from "sonner";
 import { Id } from "../../../convex/_generated/dataModel";
 import Tilt from 'react-parallax-tilt';

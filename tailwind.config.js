@@ -53,6 +53,12 @@ module.exports = {
     "flex", "items-center", "w-full", "px-6", "py-2", "rounded-lg", "transition-colors", "text-left", "gap-3", "shadow",
     "bg-muted", "hover:bg-muted", "bg-primary", "text-primary-foreground",
     "border-b", "border-border", "transition", "bg-card", "bg-[#23232a]", "hover:bg-muted",
+    // Badge, Card, Button variants
+    "bg-primary", "text-primary-foreground", "hover:bg-primary/80",
+    "bg-secondary", "text-secondary-foreground", "hover:bg-secondary/80",
+    "bg-destructive", "text-destructive-foreground", "hover:bg-destructive/80",
+    "text-foreground", "bg-card", "text-card-foreground", "bg-muted", "text-muted-foreground",
+    "bg-popover", "text-popover-foreground", "bg-accent-foreground",
     // Add more as needed based on your UI usage
   ],
   darkMode: ["class"],

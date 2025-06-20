@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import QrScanner from "qr-scanner";
 import QRCode from "react-qr-code";
 import { Id } from "../../../convex/_generated/dataModel";
-import { LoadingSpinner } from "../ui/LoadingSpinner";
+import LoadingSpinner from "../ui/LoadingSpinner";
 
 interface AttendanceResult {
   success: boolean;

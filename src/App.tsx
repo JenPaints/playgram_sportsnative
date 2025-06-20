@@ -7,7 +7,7 @@ import { StudentDashboard } from "./components/StudentDashboard";
 import { CoachDashboard } from "./components/CoachDashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import { ProfileSetup } from "./components/ProfileSetup";
-import { LoadingSpinner } from "./components/ui/LoadingSpinner";
+import LoadingSpinner from "./components/ui/LoadingSpinner";
 import { motion } from "framer-motion";
 import { Capacitor } from '@capacitor/core';
 
@@ -113,46 +113,48 @@ function UnauthenticatedApp() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative bg-gradient-to-br from-[#0f172a] via-[#312e81] to-[#6366f1] overflow-hidden">
-      {/* Header: Logo, Title, Subtitle */}
-      <div className="w-full max-w-md mx-auto flex flex-col items-center pt-8 pb-0">
-        <img src="https://jenpaints.art/wp-content/uploads/2025/06/logo-playgram.png" alt="PlayGram Logo" className="w-16 h-16 rounded-full shadow-lg border-4 border-indigo-400 bg-white/10 object-contain mb-2 animate-fade-in" />
-        <h1 className="text-5xl font-extrabold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-1 drop-shadow-lg text-center">PlayGram</h1>
-        <p className="text-base text-indigo-200 font-light drop-shadow text-center mb-2">Sports Coaching Platform</p>
-      </div>
-      {/* Main Content: Lottie + Sign In Box */}
-      <div className="w-full max-w-md mx-auto flex flex-col items-center relative mt-2">
-        {/* Three Lottie animations in a grid above the sign-in box */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="flex flex-row justify-center items-center gap-6 mb-8 w-full"
-        >
-          {lottieEmbeds.map((url, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ scale: 1.1, rotate: 10 }}
-              className="p-2 bg-indigo-900/80 rounded-xl border border-indigo-700 shadow-lg backdrop-blur-md flex items-center justify-center"
-            >
-              <iframe
-                src={url}
-                style={{ width: 64, height: 64, background: 'transparent', border: 'none' }}
-                allowFullScreen
-                title={`Lottie animation ${index + 1}`}
-              />
-            </motion.div>
-          ))}
-        </motion.div>
-        {/* Sign In Box */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2, type: 'spring' }}
-          className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-indigo-400 relative z-10 w-full"
-        >
-          <SignInForm />
-        </motion.div>
+    <div className="bg-gradient-to-br from-[#0f172a] via-[#312e81] to-[#6366f1] min-h-screen">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        {/* Header: Logo, Title, Subtitle */}
+        <div className="w-full max-w-md mx-auto flex flex-col items-center pt-8 pb-0">
+          <img src="https://jenpaints.art/wp-content/uploads/2025/06/logo-playgram.png" alt="PlayGram Logo" className="w-16 h-16 rounded-full shadow-lg border-4 border-indigo-400 bg-white/10 object-contain mb-2 animate-fade-in" />
+          <h1 className="text-5xl font-extrabold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-1 drop-shadow-lg text-center">PlayGram</h1>
+          <p className="text-base text-indigo-200 font-light drop-shadow text-center mb-2">Sports Coaching Platform</p>
+        </div>
+        {/* Main Content: Lottie + Sign In Box */}
+        <div className="w-full max-w-md mx-auto flex flex-col items-center relative mt-2">
+          {/* Three Lottie animations in a grid above the sign-in box */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="flex flex-row justify-center items-center gap-6 mb-8 w-full"
+          >
+            {lottieEmbeds.map((url, index) => (
+              <motion.div
+                key={index}
+                whileHover={{ scale: 1.1, rotate: 10 }}
+                className="p-2 bg-indigo-900/80 rounded-xl border border-indigo-700 shadow-lg backdrop-blur-md flex items-center justify-center"
+              >
+                <iframe
+                  src={url}
+                  style={{ width: 64, height: 64, background: 'transparent', border: 'none' }}
+                  allowFullScreen
+                  title={`Lottie animation ${index + 1}`}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+          {/* Sign In Box */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2, type: 'spring' }}
+            className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-indigo-400 relative z-10 w-full"
+          >
+            <SignInForm />
+          </motion.div>
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,16 @@
+node_modules
+android
+ios
+dist
+build
+__MACOSX
+*.log
+*.tmp
+.DS_Store
+.git
+.gitignore
+package-lock.json
+yarn.lock
+npm-debug.log
+.vscode
+.idea 

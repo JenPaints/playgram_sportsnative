@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { LoadingSpinner } from "../ui/LoadingSpinner";
+import LoadingSpinner from "../ui/LoadingSpinner";
 import { useState, lazy, Suspense } from "react";
 import { toast } from "sonner";
 import { Id, Doc } from "../../../convex/_generated/dataModel";

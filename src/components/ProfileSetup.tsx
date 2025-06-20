@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { motion } from "framer-motion";
-import { LoadingSpinner } from "./ui/LoadingSpinner";
+import LoadingSpinner from "./ui/LoadingSpinner";
 import { toast } from "sonner";
 import { Capacitor } from '@capacitor/core';
 

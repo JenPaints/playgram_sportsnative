@@ -1,0 +1,65 @@
+Data Safety Section for Google Play Console
+
+1. Data Collection and Usage
+   - Personal Information:
+     * Name and contact information (Required for account creation and communication)
+     * Profile information (Required for sports program enrollment)
+     * Payment information (Required for subscription processing)
+     * Location data (Optional, used for finding nearby sports facilities)
+     * Device information (Required for app functionality)
+
+2. Data Security
+   - All data is encrypted in transit and at rest
+   - Secure authentication using industry-standard protocols
+   - Regular security audits and updates
+   - Access controls and monitoring systems
+
+3. Data Sharing
+   - Payment processing: Razorpay (Required for transactions)
+   - Analytics: Firebase (Required for app improvement)
+   - No data is sold to third parties
+   - Data is only shared with explicit user consent
+
+4. Data Deletion
+   - Users can request data deletion through the app settings
+   - Deletion requests are processed within 30 days
+   - Backup data is retained for legal compliance
+   - Users can export their data before deletion
+
+5. Children's Privacy
+   - App is not intended for children under 13
+   - No personal information collected from children
+   - Parental consent required for users under 18
+   - Special protections for minor accounts
+
+6. Data Retention
+   - Account data: Retained while account is active
+   - Payment information: Retained as required by law
+   - Usage data: Retained for 12 months
+   - Deleted account data: Retained for 30 days
+
+7. User Rights
+   - Access to personal data
+   - Data correction
+   - Data deletion
+   - Data portability
+   - Opt-out of non-essential data collection
+
+8. Compliance
+   - GDPR compliant
+   - CCPA compliant
+   - COPPA compliant
+   - Local data protection laws
+
+9. Security Measures
+   - End-to-end encryption
+   - Regular security updates
+   - Secure authentication
+   - Data backup and recovery
+   - Incident response plan
+
+10. Third-Party Services
+    - Razorpay (Payment processing)
+    - Firebase (Analytics and crash reporting)
+    - Google Play Services (App functionality)
+    - All third-party services are vetted for security and privacy compliance 

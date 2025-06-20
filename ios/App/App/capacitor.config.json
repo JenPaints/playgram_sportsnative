@@ -1,0 +1,6 @@
+{
+	"appId": "com.playgram.app",
+	"appName": "PlayGram",
+	"webDir": "dist",
+	"packageClassList": []
+}

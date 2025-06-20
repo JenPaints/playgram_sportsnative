@@ -24,6 +24,7 @@ export default function BatchImage({ src, alt, className }: BatchImageProps) {
       {!isLoaded && (
         <div className="absolute inset-0 bg-gray-800 animate-pulse" />
       )}
+      <div className={`transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}></div>
       <img
         src={imageSrc}
         alt={alt}

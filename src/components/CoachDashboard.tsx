@@ -3,7 +3,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { SignOutButton } from "../SignOutButton";
-import { LoadingSpinner } from "./ui/LoadingSpinner";
+import LoadingSpinner from "./ui/LoadingSpinner";
 import { QRScanner } from "./coach/QRScanner";
 import { BatchManagement } from "./coach/BatchManagement";
 import { AttendanceHistory } from "./coach/AttendanceHistory";

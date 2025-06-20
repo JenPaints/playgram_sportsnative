@@ -37,3 +37,4 @@ yarn-error.log*
 # iOS
 /ios/Pods/
 /ios/build/ 
+.vercel

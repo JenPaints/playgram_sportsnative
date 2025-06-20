@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Id } from "../../convex/_generated/dataModel";
 import { motion, AnimatePresence } from "framer-motion";
 import GenerateInvoice from "./GenerateInvoice";
-import { LoadingSpinner } from "./ui/LoadingSpinner";
+import LoadingSpinner from "./ui/LoadingSpinner";
 import React from "react";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -315,4 +315,5 @@ export default function InvoicesTab() {
       )}
     </div>
   );
-} 
+}
+import LoadingSpinner from "./ui/LoadingSpinner";
