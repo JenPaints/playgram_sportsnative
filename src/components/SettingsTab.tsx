@@ -10,7 +10,7 @@ import { Label } from "../components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Badge } from "../components/ui/badge";
-import LoadingSpinner from "../components/ui/LoadingSpinner";
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { Shield, AlertTriangle, Lock, UserCog, Activity, Trash2, Plus, RefreshCw } from "lucide-react";
 
 interface Session {
@@ -526,4 +526,3 @@ export const SettingsTab: React.FC = () => {
 };
 
 export default SettingsTab;
-import LoadingSpinner from "../components/ui/LoadingSpinner";

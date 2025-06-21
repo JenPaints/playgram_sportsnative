@@ -437,20 +437,95 @@ export const listAllAttendance = query({
   returns: v.array(
     v.object({
       _id: v.id("attendance"),
-      _creationTime: v.float64(), // ← this fixes the error
       userId: v.id("users"),
       batchId: v.id("batches"),
       date: v.string(),
       isPresent: v.boolean(),
       method: v.union(v.literal("qr"), v.literal("manual")),
       notes: v.optional(v.string()),
-      timestamp: v.float64(),
+      timestamp: v.number(),
+      _creationTime: v.optional(v.number()),
     })
   ),
   handler: async (ctx, args) => {
     const records = await ctx.db.query("attendance").order("desc").collect();
-    // Return the records as-is since Convex automatically includes _creationTime
-    return records;
+    return records.map(({ _id, userId, batchId, date, isPresent, method, notes, timestamp, _creationTime }) => ({
+      _id,
+      userId,
+      batchId,
+      date,
+      isPresent,
+      method,
+      notes,
+      timestamp,
+      _creationTime,
+    }));
+  },
+});
+
+// List attendance records with filtering and enrichment
+export const listAttendance = query({
+  args: {
+    startDate: v.optional(v.number()),
+    endDate: v.optional(v.number()),
+    userId: v.optional(v.id("users")),
+    batchId: v.optional(v.id("batches")),
+  },
+  handler: async (ctx, args) => {
+    let query = ctx.db.query("attendance");
+
+    if (args.startDate && args.endDate) {
+      query = query.filter((q) => 
+        q.and(
+          q.gte(q.field("timestamp"), args.startDate!),
+          q.lte(q.field("timestamp"), args.endDate!)
+        )
+      );
+    }
+
+    if (args.userId) {
+      query = query.filter((q) => q.eq(q.field("userId"), args.userId));
+    }
+
+    if (args.batchId) {
+      query = query.filter((q) => q.eq(q.field("batchId"), args.batchId));
+    }
+
+    const attendanceRecords = await query.collect();
+
+    const enrichedAttendance = await Promise.all(
+      attendanceRecords.map(async (record) => {
+        // Get profile using the by_user index
+        const profile = await ctx.db
+          .query("profiles")
+          .withIndex("by_user", (q) => q.eq("userId", record.userId))
+          .first();
+
+        // Get user to access email
+        const user = await ctx.db.get(record.userId);
+
+        const batch = await ctx.db.get(record.batchId);
+        const sport = batch ? await ctx.db.get(batch.sportId) : null;
+
+        return {
+          ...record,
+          user: {
+            name: profile ? `${profile.firstName} ${profile.lastName}` : 'N/A',
+            userId: record.userId,
+            email: user?.email || 'N/A',
+            phone: profile?.phone || 'N/A',
+          },
+          batch: {
+            name: batch?.name || 'N/A',
+          },
+          sport: {
+            name: sport?.name || 'N/A',
+          },
+        };
+      })
+    );
+
+    return enrichedAttendance;
   },
 });
 

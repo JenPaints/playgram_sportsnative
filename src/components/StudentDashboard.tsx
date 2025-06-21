@@ -264,9 +264,9 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
             className="bg-gradient-to-r from-[#18181b]/90 via-[#312e81]/90 to-[#6366f1]/80 backdrop-blur-md border-b border-indigo-900/60 sticky top-0 z-50 shadow-xl"
           >
             <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-              <div className="flex flex-row justify-between items-center h-20 gap-4">
+              <div className="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-20 gap-4 py-4 sm:py-0">
                 {/* Left: Logo and Title */}
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto justify-between sm:justify-start">
                   {/* Hamburger for mobile */}
                   <button
                     className="menu-button sm:hidden mr-2 p-2 rounded hover:bg-indigo-900/60 focus:outline-none"
@@ -276,7 +276,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                     <Menu size={28} className="text-white" />
                   </button>
                   <img src="https://jenpaints.art/wp-content/uploads/2025/06/logo-playgram.png" alt="PlayGram Logo" className="w-10 h-10 rounded-full shadow-lg border-2 border-indigo-400 bg-white/10 object-contain" />
-                  <span className="text-3xl font-extrabold text-white tracking-tight ml-2 whitespace-nowrap drop-shadow-lg">PlayGram</span>
+                  <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight ml-2 whitespace-nowrap drop-shadow-lg">PlayGram</span>
                 </div>
                 {/* Center: Welcome */}
                 <div className="hidden md:block flex-1 text-center">
@@ -284,18 +284,18 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   <span className="text-xl font-bold text-white drop-shadow">{profile.profile?.firstName} {profile.profile?.lastName}</span>
                 </div>
                 {/* Right: User Info and Actions */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
                   <div className="flex flex-col items-end gap-1">
                     <div className="flex items-center gap-2">
-                      <span className="px-3 py-1 rounded-full bg-indigo-900/60 text-yellow-300 font-semibold flex items-center gap-1 shadow"><Award size={16} /> Points</span>
-                      <span className="px-3 py-1 rounded-full bg-indigo-900/60 text-yellow-200 font-bold flex items-center gap-1 shadow"><BadgePercent size={18} /> {profile.profile?.totalPoints}</span>
+                      <span className="px-3 py-1 rounded-full bg-indigo-900/60 text-yellow-300 font-semibold flex items-center gap-1 shadow text-xs sm:text-base"><Award size={16} /> Points</span>
+                      <span className="px-3 py-1 rounded-full bg-indigo-900/60 text-yellow-200 font-bold flex items-center gap-1 shadow text-xs sm:text-base"><BadgePercent size={18} /> {profile.profile?.totalPoints}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="px-3 py-1 rounded-full bg-indigo-900/60 text-blue-300 font-semibold flex items-center gap-1 shadow"><Star size={16} /> Level</span>
-                      <span className="px-3 py-1 rounded-full bg-indigo-900/60 text-blue-200 font-bold flex items-center gap-1 shadow"><Medal size={18} />{profile.profile?.level}</span>
+                      <span className="px-3 py-1 rounded-full bg-indigo-900/60 text-blue-300 font-semibold flex items-center gap-1 shadow text-xs sm:text-base"><Star size={16} /> Level</span>
+                      <span className="px-3 py-1 rounded-full bg-indigo-900/60 text-blue-200 font-bold flex items-center gap-1 shadow text-xs sm:text-base"><Medal size={18} />{profile.profile?.level}</span>
                     </div>
                   </div>
-                  <Avatar src={avatarUrl} alt="Profile" size={44} className="border-2 border-indigo-400 shadow" />
+                  <Avatar src={avatarUrl} alt="Profile" size={36} className="border-2 border-indigo-400 shadow" />
                   <SignOutButton />
                 </div>
               </div>
@@ -305,7 +305,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
           <div className="flex">
             {/* Sidebar Navigation */}
             {/* Desktop Sidebar */}
-            <nav ref={sidebarRef} className="sidebar hidden md:flex w-72 bg-gradient-to-b from-black/70 via-indigo-950/80 to-indigo-900/80 border-r-2 border-indigo-800 shadow-2xl min-h-screen p-6 flex-col glassmorphism">
+            <nav ref={sidebarRef} className="sidebar hidden md:flex w-full md:w-72 bg-gradient-to-b from-black/70 via-indigo-950/80 to-indigo-900/80 border-r-2 border-indigo-800 shadow-2xl min-h-screen p-4 md:p-6 flex-col glassmorphism">
               <div className="space-y-3">
                 {tabs.map((tab) => (
                   <motion.button
@@ -345,7 +345,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   animate={{ x: 0 }}
                   exit={{ x: "-100%" }}
                   transition={{ type: "spring", damping: 20 }}
-                  className="sidebar fixed inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-black/90 via-indigo-950/95 to-indigo-900/95 border-r-2 border-indigo-800 shadow-2xl p-6 flex-col glassmorphism md:hidden"
+                  className="sidebar fixed inset-y-0 left-0 z-50 w-4/5 max-w-xs bg-gradient-to-b from-black/90 via-indigo-950/95 to-indigo-900/95 border-r-2 border-indigo-800 shadow-2xl p-4 flex-col glassmorphism md:hidden"
                 >
                   <div className="flex justify-between items-center mb-6">
                     <span className="text-white font-bold text-2xl">Menu</span>
@@ -392,7 +392,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
             </AnimatePresence>
 
             {/* Main Content */}
-            <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+            <main className="flex-1 p-2 sm:p-4 lg:p-8 overflow-x-auto min-w-0">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTab}
@@ -400,7 +400,7 @@ export function StudentDashboard({ user }: StudentDashboardProps) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="max-w-7xl mx-auto"
+                  className="max-w-7xl mx-auto w-full"
                 >
                   {renderContent()}
                 </motion.div>
